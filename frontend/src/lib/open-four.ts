@@ -20,7 +20,8 @@ import openFourCoreAbi from "@/abi/open-four-core.json";
 import openFourToolsAbi from "@/abi/open-four-tools.json";
 import { publicEnv } from "./env";
 import { memeGet, memePost } from "./meme-api";
-import { toMemeApiNetworkName } from "./chain";
+import { getActiveChain, toMemeApiNetworkName } from "./chain";
+import { normalizeOptionalCreateUrl } from "./create-url";
 import {
 	isTaxTokenSchema,
 	taxInfoToFormFields,
@@ -81,6 +82,10 @@ export type CommonConfigItem = {
 	nativeSymbol?: string;
 	symbolAddress?: string;
 	logoUrl?: string;
+	/** Target raise amount for this quote (meme-api public config). */
+	totalBAmount?: string | number;
+	raisedAmount?: string | number;
+	decimals?: number;
 };
 
 export async function loadTemplateConfig(
@@ -136,6 +141,7 @@ export async function loadSchemas(
 		abi: openFourToolsAbi,
 		functionName: "getPresetEncodeSchemas",
 		args: [BigInt(presetId)],
+		chainId: getActiveChain().id,
 	});
 	const [token, vault, curve, trade, migrate, customData] = raw as [
 		Parameters<typeof mapModuleSchema>[0],
@@ -169,13 +175,18 @@ export type CreateInput = {
 	presaleQuote?: string;
 	raised: TemplateSymbolConfig;
 	account: Address;
+	/** OpenFour preset / template id for this create */
+	templateId: number;
 	/** Required for tax templates */
 	tax?: CreateTaxInfo | null;
 };
 
 export async function createOpenFourToken(input: CreateInput) {
 	const contracts = await loadContracts();
-	const templateId = publicEnv.openFourTemplateId;
+	const templateId = input.templateId;
+	if (!Number.isFinite(templateId) || templateId <= 0) {
+		throw new Error("Missing OpenFour template id");
+	}
 	const schemas = await loadSchemas(contracts.OpenFourTools, templateId);
 	const taxTemplate = isTaxTokenSchema(schemas.token.params);
 
@@ -233,12 +244,20 @@ export async function createOpenFourToken(input: CreateInput) {
 		name: input.name,
 		shortName: input.shortName,
 		symbol: input.raised.symbol,
-		desc: input.desc || "",
-		webUrl: input.webUrl || "",
-		twitterUrl: input.twitterUrl || "",
-		telegramUrl: input.telegramUrl || "",
+		desc: (input.desc ?? "").trim(),
+		...((): Record<string, string> => {
+			const webUrl = normalizeOptionalCreateUrl(input.webUrl);
+			const twitterUrl = normalizeOptionalCreateUrl(input.twitterUrl);
+			const telegramUrl = normalizeOptionalCreateUrl(input.telegramUrl);
+			return {
+				...(webUrl ? { webUrl } : {}),
+				...(twitterUrl ? { twitterUrl } : {}),
+				...(telegramUrl ? { telegramUrl } : {}),
+			};
+		})(),
 		presaleQuote,
 		feePlan,
+		// Keep template raisedAmount as the original string (launcher totalBAmount).
 		raisedAmount: input.raised.raisedAmount,
 		saleAmount: Number(input.raised.saleAmount) || 0,
 		totalSupply: Number(input.raised.totalSupply) || 0,
@@ -252,17 +271,24 @@ export async function createOpenFourToken(input: CreateInput) {
 	const { createArg, signature, tokenId } = api.data;
 	const decoded = decodeCreateArg(createArg);
 	if (!decoded) throw new Error("Invalid createArg returned by meme-web");
-	const txValue =
-		decoded.createFee +
-		(input.raised.symbol === "BNB" ? decoded.presaleQuote : 0n);
 
-	if (
-		input.raised.symbol !== "BNB" &&
+	// Match OpenFourCoreLib: presale uses msg.value iff quoteAsset == wrappedNative.
+	// On Robin testnet, RETH address IS wrappedNative — symbol "RETH"≠"ETH" must not decide.
+	const wrappedNative = (await readContract(wagmiConfig, {
+		address: contracts.OpenFourCore,
+		abi: openFourCoreAbi,
+		functionName: "wrappedNative",
+	})) as Address;
+	const quoteAsset = decoded.quoteAsset;
+	const presaleUsesNative =
 		decoded.presaleQuote > 0n &&
-		input.raised.symbolAddress
-	) {
+		quoteAsset.toLowerCase() === wrappedNative.toLowerCase();
+	const txValue =
+		decoded.createFee + (presaleUsesNative ? decoded.presaleQuote : 0n);
+
+	if (!presaleUsesNative && decoded.presaleQuote > 0n) {
 		await ensureAllowance({
-			token: input.raised.symbolAddress as Address,
+			token: quoteAsset,
 			owner: input.account,
 			spender: contracts.OpenFourCore,
 			amount: decoded.presaleQuote,
@@ -309,6 +335,8 @@ const CREATE_ARGS_ABI = [
 			{ name: "createFee", type: "uint256" },
 			{ name: "presaleQuote", type: "uint256" },
 			{ name: "antiSniperEnabled", type: "bool" },
+			// meme-web fills a real partner or the zero address; never omitted from createArg.
+			{ name: "partner", type: "address" },
 			{
 				name: "initParams",
 				type: "tuple",
@@ -336,15 +364,37 @@ const CREATE_ARGS_ABI = [
 function decodeCreateArg(createArg: Hex): {
 	createFee: bigint;
 	presaleQuote: bigint;
+	quoteAsset: Address;
 } | null {
 	try {
 		const [tuple] = decodeAbiParameters(CREATE_ARGS_ABI, createArg);
 		return {
 			createFee: tuple.createFee,
 			presaleQuote: tuple.presaleQuote,
+			quoteAsset: tuple.initParams.quoteAsset as Address,
 		};
 	} catch {
 		return null;
+	}
+}
+
+/** Whether create/prebuy pays native (msg.value) for this quote — same rule as Core. */
+export async function isCreateQuoteNativePayment(
+	quoteAddress?: string | null,
+): Promise<boolean> {
+	if (!quoteAddress) return false;
+	try {
+		const contracts = await loadContracts();
+		const wrappedNative = (await readContract(wagmiConfig, {
+			address: contracts.OpenFourCore,
+			abi: openFourCoreAbi,
+			functionName: "wrappedNative",
+		})) as Address;
+		return (
+			quoteAddress.toLowerCase() === String(wrappedNative).toLowerCase()
+		);
+	} catch {
+		return false;
 	}
 }
 

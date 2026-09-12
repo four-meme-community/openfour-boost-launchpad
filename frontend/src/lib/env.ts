@@ -1,23 +1,28 @@
 /**
  * Frontend public env. Never put any apiKey here.
+ *
+ * Next.js only inlines `process.env.NEXT_PUBLIC_*` when accessed with a
+ * static property name. Dynamic `process.env[name]` is undefined in the browser.
  */
-function requirePublic(name: string, fallback?: string): string {
-	const value = process.env[name] ?? fallback;
+function requireUrl(value: string | undefined, label: string): string {
 	if (!value) {
-		throw new Error(`Missing required env: ${name}`);
+		throw new Error(`Missing required env: ${label}`);
 	}
 	return value.replace(/\/$/, "");
 }
 
 export const publicEnv = {
-	bffUrl: requirePublic(
+	bffUrl: requireUrl(
+		process.env.NEXT_PUBLIC_BFF_URL ||
+			(process.env.NODE_ENV === "development"
+				? "http://localhost:8787"
+				: undefined),
 		"NEXT_PUBLIC_BFF_URL",
-		process.env.NODE_ENV === "development"
-			? "http://localhost:8787"
-			: undefined,
 	),
+	/** PROD = BSC 56 + Robinhood 4663; otherwise BSC testnet 97 + Robinhood testnet 46630 */
 	isProd: process.env.NEXT_PUBLIC_MODE === "PROD",
 	wcProjectId: process.env.NEXT_PUBLIC_PROJECT_ID || "",
+	/** BSC fallback template; per-chain create presets come from BFF /v1/config */
 	openFourTemplateId: Number(
 		process.env.NEXT_PUBLIC_OPEN_FOUR_TEMPLATE_ID || "1778027615733",
 	),

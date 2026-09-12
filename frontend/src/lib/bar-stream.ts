@@ -3,6 +3,7 @@
  */
 import { publicEnv } from "./env";
 import type { BarTypeEnum } from "./meme-api";
+import { getClientMemeNetworkCode } from "./network";
 
 export type BarStreamPush = {
 	tokenId: number;
@@ -31,6 +32,7 @@ export function subscribeBarStream(
 	const qs = new URLSearchParams({
 		tokenId: String(params.tokenId),
 		typeEnum: params.typeEnum,
+		networkCode: getClientMemeNetworkCode(),
 	});
 	const url = `${publicEnv.bffUrl}/v1/stream/bars?${qs}`;
 	const es = new EventSource(url, { withCredentials: true });

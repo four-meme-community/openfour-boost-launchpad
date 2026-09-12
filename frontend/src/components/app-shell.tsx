@@ -10,6 +10,7 @@ import { useI18n } from "@/i18n/provider";
 import { stripLocalePrefix } from "@/i18n/locale-path";
 import { isDarkThemeRoute } from "@/lib/theme";
 import { LanguageSwitcher } from "./language-switcher";
+import { NetworkSwitcher } from "./network-switcher";
 import { WalletButton } from "./wallet-button";
 
 export function AppShell({
@@ -50,6 +51,7 @@ export function AppShell({
 						<p className="brand-tagline">{tagline}</p>
 					</div>
 					<div className="header-actions">
+						<NetworkSwitcher />
 						<LanguageSwitcher />
 						<WalletButton />
 					</div>

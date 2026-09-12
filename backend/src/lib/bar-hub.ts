@@ -7,6 +7,7 @@
  */
 import zlib from "node:zlib";
 import { env } from "../config/env.js";
+import { normalizeMemeNetworkCode } from "./meme-network.js";
 
 export type BarTypeEnum =
 	| "MIN1"
@@ -48,18 +49,21 @@ export type FillPush = {
 export type BarListener = (bar: BarPush) => void;
 export type FillListener = (fill: FillPush) => void;
 
-const NETWORK_SUFFIX = "0"; // BSC
 const IDLE_CLOSE_MS = 60_000;
 const HEARTBEAT_MS = 30_000;
 const RECONNECT_BASE_MS = 1_000;
 const RECONNECT_MAX_MS = 30_000;
 
-function barChannel(tokenId: number, typeEnum: BarTypeEnum): string {
-	return `${tokenId}@BAR_EVENT-${typeEnum}@${NETWORK_SUFFIX}`;
+function barChannel(
+	tokenId: number,
+	typeEnum: BarTypeEnum,
+	networkCode: string,
+): string {
+	return `${tokenId}@BAR_EVENT-${typeEnum}@${networkCode}`;
 }
 
-function fillChannel(tokenId: number): string {
-	return `${tokenId}@FILL_EVENT@${NETWORK_SUFFIX}`;
+function fillChannel(tokenId: number, networkCode: string): string {
+	return `${tokenId}@FILL_EVENT@${networkCode}`;
 }
 
 function parseBarChannel(channel: string): {
@@ -125,10 +129,12 @@ class MemeWsHub {
 		tokenId: number,
 		typeEnum: BarTypeEnum,
 		listener: BarListener,
+		networkCode?: string | number | null,
 	): () => void {
+		const suffix = normalizeMemeNetworkCode(networkCode);
 		return this.subscribeTyped(
 			this.barChannels,
-			barChannel(tokenId, typeEnum),
+			barChannel(tokenId, typeEnum, suffix),
 			listener,
 		);
 	}
@@ -142,8 +148,17 @@ class MemeWsHub {
 		return this.subscribeBar(tokenId, typeEnum, listener);
 	}
 
-	subscribeFill(tokenId: number, listener: FillListener): () => void {
-		return this.subscribeTyped(this.fillChannels, fillChannel(tokenId), listener);
+	subscribeFill(
+		tokenId: number,
+		listener: FillListener,
+		networkCode?: string | number | null,
+	): () => void {
+		const suffix = normalizeMemeNetworkCode(networkCode);
+		return this.subscribeTyped(
+			this.fillChannels,
+			fillChannel(tokenId, suffix),
+			listener,
+		);
 	}
 
 	stats() {

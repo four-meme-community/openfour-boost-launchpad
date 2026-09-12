@@ -34,7 +34,7 @@ export function LanguageSwitcher() {
 		setOpen(false);
 		if (next === locale) return;
 		document.cookie = `NEXT_LOCALE=${next};path=/;max-age=31536000;samesite=lax`;
-		router.push(localizePath(pathname, next));
+		router.push(`${localizePath(pathname, next)}${window.location.search}`);
 	};
 
 	return (

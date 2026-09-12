@@ -6,7 +6,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getBalance, readContract } from "wagmi/actions";
 import { erc20Abi, formatUnits, isAddress, type Address } from "viem";
-import { CHAIN } from "@/lib/chain";
+import { getActiveChain } from "@/lib/chain";
 import { wagmiConfig } from "@/lib/wagmi";
 
 export function useNativeBalance(
@@ -14,14 +14,14 @@ export function useNativeBalance(
 	refetchInterval = 6_000,
 ) {
 	return useQuery({
-		queryKey: ["balance", "native", address, CHAIN.id],
+		queryKey: ["balance", "native", address, getActiveChain().id],
 		enabled: !!address && isAddress(address),
 		refetchInterval,
 		retry: 2,
 		queryFn: async () => {
 			const bal = await getBalance(wagmiConfig, {
 				address: address as Address,
-				chainId: CHAIN.id,
+				chainId: getActiveChain().id,
 			});
 			return bal;
 		},
@@ -34,7 +34,7 @@ export function useErc20Balance(
 	refetchInterval = 6_000,
 ) {
 	return useQuery({
-		queryKey: ["balance", "erc20", owner, token, CHAIN.id],
+		queryKey: ["balance", "erc20", owner, token, getActiveChain().id],
 		enabled:
 			!!owner &&
 			isAddress(owner) &&
@@ -44,19 +44,20 @@ export function useErc20Balance(
 		refetchInterval,
 		retry: 2,
 		queryFn: async () => {
+			const chainId = getActiveChain().id;
 			const [value, decimals] = await Promise.all([
 				readContract(wagmiConfig, {
 					address: token as Address,
 					abi: erc20Abi,
 					functionName: "balanceOf",
 					args: [owner as Address],
-					chainId: CHAIN.id,
+					chainId,
 				}),
 				readContract(wagmiConfig, {
 					address: token as Address,
 					abi: erc20Abi,
 					functionName: "decimals",
-					chainId: CHAIN.id,
+					chainId,
 				}).catch(() => 18),
 			]);
 			return { value, decimals: Number(decimals) };

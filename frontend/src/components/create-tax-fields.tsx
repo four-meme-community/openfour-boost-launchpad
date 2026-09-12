@@ -190,6 +190,8 @@ export function CreateTaxFields({
 						{t("create.tax.wallet")}
 						{quoteSymbol === "BNB" ? (
 							<em>{t("create.tax.wbnb")}</em>
+						) : quoteSymbol === "ETH" ? (
+							<em>{t("create.tax.weth")}</em>
 						) : null}
 					</span>
 					<input

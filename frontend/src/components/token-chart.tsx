@@ -143,44 +143,13 @@ function toUnixSec(createDate: string | number): UTCTimestamp {
 }
 
 /**
- * Occasional upstream bad ticks: during DEX USDT-basis conversion, a bar may use
- * the wrong quote FX and jump hundreds/thousands×, blowing auto-scale (other bars
- * squash to a flat line on the floor). Real markets do not jump that hard in one
- * candle — flatten bad bars to the previous close instead of wrecking the chart.
+ * Map upstream bars as-is (same as meme-launcher datafeed).
+ * Do not flatten large jumps: DEX USDT conversion often has a legitimate
+ * ~10–20× candle at graduation, which meme-launcher shows as the open spike.
  */
-const OUTLIER_RATIO = 12;
-
-function isImplausible(value: number, reference: number): boolean {
-	if (!(reference > 0) || !(value > 0)) return false;
-	const ratio = value / reference;
-	return ratio > OUTLIER_RATIO || ratio < 1 / OUTLIER_RATIO;
-}
-
-function sanitizeCandle(
-	candle: CandlePoint,
-	lastGoodClose: number | null,
-): CandlePoint {
-	if (lastGoodClose == null) return candle;
-	const bad = [candle.open, candle.high, candle.low, candle.close].some((v) =>
-		isImplausible(v, lastGoodClose),
-	);
-	if (!bad) return candle;
-	return {
-		time: candle.time,
-		open: lastGoodClose,
-		high: lastGoodClose,
-		low: lastGoodClose,
-		close: lastGoodClose,
-	};
-}
-
-function mapBars(
-	raw: BarCandle[],
-	seedClose: number | null = null,
-): {
+function mapBars(raw: BarCandle[]): {
 	candles: CandlePoint[];
 	volumes: VolumePoint[];
-	lastGoodClose: number | null;
 } {
 	const byTime = new Map<number, CandlePoint>();
 	const volByTime = new Map<number, VolumePoint>();
@@ -206,28 +175,20 @@ function mapBars(
 		});
 	}
 
-	const rawSorted = [...byTime.values()].sort((a, b) => a.time - b.time);
-
-	let lastGoodClose = seedClose;
-	const candles: CandlePoint[] = [];
-	const volumes: VolumePoint[] = [];
-	for (const raw of rawSorted) {
-		const candle = sanitizeCandle(raw, lastGoodClose);
-		lastGoodClose = candle.close;
-		candles.push(candle);
-
+	const candles = [...byTime.values()].sort((a, b) => a.time - b.time);
+	const volumes: VolumePoint[] = candles.map((candle) => {
 		const vol = volByTime.get(candle.time);
-		volumes.push({
+		return {
 			time: candle.time,
 			value: vol?.value ?? 0,
 			color:
 				candle.close >= candle.open
 					? "rgba(108, 255, 50, 0.35)"
 					: "rgba(255, 92, 92, 0.35)",
-		});
-	}
+		};
+	});
 
-	return { candles, volumes, lastGoodClose };
+	return { candles, volumes };
 }
 
 export function TokenChart({
@@ -248,7 +209,6 @@ export function TokenChart({
 	const candleRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
 	const volumeRef = useRef<ISeriesApi<"Histogram"> | null>(null);
 	const lastBarTimeRef = useRef<number>(0);
-	const lastGoodCloseRef = useRef<number | null>(null);
 	const onLastPriceRef = useRef(onLastPrice);
 	onLastPriceRef.current = onLastPrice;
 
@@ -257,11 +217,7 @@ export function TokenChart({
 	const [error, setError] = useState<string | null>(null);
 	const [empty, setEmpty] = useState(false);
 	const [live, setLive] = useState(false);
-	/**
-	 * DEX candles use USDT basis to match ticker.price/marketCap (both USD).
-	 * ORIGINAL is quote-asset priced (e.g. BNC4); treating it as USD scales by the
-	 * quote's own USD FX and can skew header price/mcap by several×.
-	 */
+	/** DEX bars in USDT — same as meme-launcher when chart quote is USDT. */
 	const quoteMode = "USDT" as const;
 	const expectedCategory = barRealtimeCategory({
 		onDex,
@@ -360,7 +316,6 @@ export function TokenChart({
 			setEmpty(false);
 			setLive(false);
 			lastBarTimeRef.current = 0;
-			lastGoodCloseRef.current = null;
 			try {
 				const raw = await fetchBars({
 					tokenId,
@@ -371,8 +326,7 @@ export function TokenChart({
 					startDate: onDex ? undefined : 1,
 				});
 				if (cancelled) return;
-				const { candles, volumes, lastGoodClose } = mapBars(raw);
-				lastGoodCloseRef.current = lastGoodClose;
+				const { candles, volumes } = mapBars(raw);
 				const fmt = priceFormatFromValues(
 					candles.flatMap((c) => [c.open, c.high, c.low, c.close]),
 				);
@@ -427,24 +381,23 @@ export function TokenChart({
 							const volume = Number(bar.volume ?? 0);
 							if (![open, high, low, close].every(Number.isFinite)) return;
 
-							const sanitized = sanitizeCandle(
-								{ time, open, high, low, close },
-								lastGoodCloseRef.current,
-							);
-							lastGoodCloseRef.current = sanitized.close;
-
 							lastBarTimeRef.current = time;
-							candleRef.current?.update(sanitized);
+							candleRef.current?.update({
+								time,
+								open,
+								high,
+								low,
+								close,
+							});
 							volumeRef.current?.update({
 								time,
 								value: Number.isFinite(volume) ? volume : 0,
 								color:
-									sanitized.close >= sanitized.open
+									close >= open
 										? "rgba(108, 255, 50, 0.35)"
 										: "rgba(255, 92, 92, 0.35)",
 							});
-							const closeTextLive = String(sanitized.close);
-							onLastPriceRef.current?.(closeTextLive);
+							onLastPriceRef.current?.(String(close));
 							setEmpty(false);
 						},
 						onError: () => {

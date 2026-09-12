@@ -13,6 +13,7 @@ import {
 } from "@/components/token-header";
 import { TokenInfoCard } from "@/components/token-info-card";
 import { TradePanel } from "@/components/trade-panel";
+import { currentNativeQuoteSymbol } from "@/lib/chain";
 import type { TokenZapMeta } from "@/lib/zap-route";
 
 export function TradeDocker({
@@ -64,7 +65,7 @@ export function TradeDocker({
 				) : null}
 				<TradePanel
 					tokenAddress={tokenAddress}
-					quoteSymbol={token.symbol || "BNB"}
+					quoteSymbol={token.symbol || currentNativeQuoteSymbol()}
 					tokenSymbol={
 						token.shortName || token.name || token.symbol || "TOKEN"
 					}

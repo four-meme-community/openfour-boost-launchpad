@@ -6,6 +6,10 @@
 import Cookies from "js-cookie";
 import { toMemeApiNetworkName } from "./chain";
 import { publicEnv } from "./env";
+import {
+	getClientMemeNetworkCode,
+	MEME_NETWORK_HEADER,
+} from "./network";
 
 export type MemeResponse<T> = {
 	code: number;
@@ -33,6 +37,8 @@ function buildHeaders(init?: HeadersInit): Headers {
 	if (!headers.has("Accept")) headers.set("Accept", "application/json");
 	const token = getAccessToken();
 	if (token) headers.set("meme-web-access", token);
+	// Same as meme-launcher: BSC/testnet → 0, Robinhood/testnet → 8
+	headers.set(MEME_NETWORK_HEADER, getClientMemeNetworkCode());
 	return headers;
 }
 
@@ -54,11 +60,23 @@ export async function memeJson<T>(
 	init?: RequestInit,
 ): Promise<MemeResponse<T>> {
 	const res = await proxyFetch(memePath, init);
-	const json = (await res.json()) as MemeResponse<T>;
-	if (!res.ok && (json?.code === undefined || json?.code === null)) {
-		throw new Error(`HTTP ${res.status}`);
+	const text = await res.text();
+	let json: (MemeResponse<T> & { message?: string }) | null = null;
+	try {
+		json = text ? (JSON.parse(text) as MemeResponse<T> & { message?: string }) : null;
+	} catch {
+		json = null;
 	}
-	return json;
+	if (json && json.code != null) {
+		return json;
+	}
+	if (!res.ok) {
+		const detail =
+			(json && (json.msg || json.message)) ||
+			text.replace(/\s+/g, " ").trim().slice(0, 240);
+		throw new Error(detail || `HTTP ${res.status}`);
+	}
+	throw new Error("Invalid API response");
 }
 
 export async function memeGet<T>(
@@ -186,6 +204,7 @@ export async function fetchTokenList(params?: {
 	qs.set("version", params?.version ?? fromTab?.version ?? "V12");
 	if (params?.keyword?.trim()) qs.set("keyword", params.keyword.trim());
 	if (params?.templateId) qs.set("templateId", String(params.templateId));
+	qs.set("networkCode", getClientMemeNetworkCode());
 
 	const res = await fetch(`${publicEnv.bffUrl}/v1/tokens?${qs}`, {
 		headers: buildHeaders(),

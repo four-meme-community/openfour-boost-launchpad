@@ -16,6 +16,7 @@ import {
 	filterUpstreamResponseHeaders,
 	UpstreamError,
 } from "../lib/meme-web-client.js";
+import { normalizeMemeNetworkCode } from "../lib/meme-network.js";
 import type { AppVariables } from "../middleware/error-handler.js";
 
 export const tokensRoutes = new Hono<{ Variables: AppVariables }>();
@@ -29,6 +30,9 @@ tokensRoutes.get("/", async (c) => {
 	const version = c.req.query("version") || "V12";
 	const keyword = c.req.query("keyword")?.trim() || undefined;
 	const templateId = c.req.query("templateId") || undefined;
+	const networkCode = normalizeMemeNetworkCode(
+		c.req.header("meme-network-code") || c.req.query("networkCode"),
+	);
 
 	// keyword must be sent with the current tab filters (type/listType/status), or results
 	// escape the selected category (e.g. finding ungraduated tokens under the Graduated tab).
@@ -51,6 +55,7 @@ tokensRoutes.get("/", async (c) => {
 			incomingHeaders: new Headers({
 				"content-type": "application/json",
 				accept: "application/json",
+				"meme-network-code": networkCode,
 			}),
 			requestId: c.get("requestId"),
 		});

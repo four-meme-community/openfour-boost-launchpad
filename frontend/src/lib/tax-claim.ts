@@ -21,7 +21,7 @@ import {
 	writeContract,
 } from "wagmi/actions";
 import type { Address } from "viem";
-import { CHAIN, toMemeApiNetworkCode, toMemeApiNetworkName } from "./chain";
+import { getActiveChain, toMemeApiNetworkCode, toMemeApiNetworkName } from "./chain";
 import { memeGet } from "./meme-api";
 import { wagmiConfig } from "./wagmi";
 
@@ -154,10 +154,10 @@ export async function loadFeeClaimHelperAddress(): Promise<Address> {
 	);
 	if (fromWebApi) return fromWebApi;
 
-	const hardcoded = FEE_CLAIM_HELPER_BY_CHAIN[CHAIN.id];
+	const hardcoded = FEE_CLAIM_HELPER_BY_CHAIN[getActiveChain().id];
 	if (hardcoded) return hardcoded;
 
-	throw new Error(`FeeClaimHelper address unknown for chain ${CHAIN.id}`);
+	throw new Error(`FeeClaimHelper address unknown for chain ${getActiveChain().id}`);
 }
 
 /**

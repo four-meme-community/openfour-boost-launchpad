@@ -16,13 +16,21 @@ import {
 } from "@/components/token-header";
 import { TokenDetailSkeleton } from "@/components/token-detail-skeleton";
 import { TradeDocker } from "@/components/trade-docker";
+import { toMemeApiNetworkCode } from "@/lib/chain";
+import { getPublicChainByCode } from "@/lib/chain-config";
+import { publicEnv } from "@/lib/env";
 import {
 	isTokenOnDex,
 	memeGet,
 	type TokenDetail,
 } from "@/lib/meme-api";
-import { toMemeApiNetworkCode } from "@/lib/chain";
-import { loadTemplateConfig } from "@/lib/open-four";
+import { getClientMemeNetworkCode } from "@/lib/network";
+import {
+	loadCommonConfig,
+	loadTemplateConfig,
+	type CommonConfigItem,
+	type TemplateSymbolConfig,
+} from "@/lib/open-four";
 import { wagmiConfig } from "@/lib/wagmi";
 import type { TokenZapMeta } from "@/lib/zap-route";
 import { useI18n } from "@/i18n/provider";
@@ -56,6 +64,59 @@ type TokenPayload = TokenDetail & {
 	telegramUrl?: string;
 	webUrl?: string;
 };
+
+/** Quote raise target + address: current-chain templates first, then public config. */
+async function resolveQuoteMeta(symbol: string): Promise<{
+	raisedAmount?: string;
+	symbolAddress?: string;
+	decimals?: number;
+} | null> {
+	const target = symbol.trim().toUpperCase();
+	if (!target) return null;
+
+	const chain = getPublicChainByCode(getClientMemeNetworkCode());
+	const presetIds = (chain.presetIds?.length
+		? chain.presetIds
+		: [String(publicEnv.openFourTemplateId)]
+	).map(String);
+
+	const templateLists = await Promise.all(
+		presetIds.map((id) => {
+			const n = Number(id);
+			return loadTemplateConfig(Number.isFinite(n) ? n : undefined).catch(
+				() => [] as TemplateSymbolConfig[],
+			);
+		}),
+	);
+	for (const list of templateLists) {
+		const quote = (list || []).find(
+			(item) => item.symbol?.toUpperCase() === target,
+		);
+		if (quote) {
+			return {
+				raisedAmount:
+					quote.raisedAmount != null && String(quote.raisedAmount) !== ""
+						? String(quote.raisedAmount)
+						: undefined,
+				symbolAddress: quote.symbolAddress,
+				decimals: quote.decimals,
+			};
+		}
+	}
+
+	const common = await loadCommonConfig().catch(() => [] as CommonConfigItem[]);
+	const row = (common || []).find(
+		(item) => item.symbol?.toUpperCase() === target,
+	);
+	if (!row) return null;
+	const amount = row.raisedAmount ?? row.totalBAmount;
+	return {
+		raisedAmount:
+			amount != null && String(amount) !== "" ? String(amount) : undefined,
+		symbolAddress: row.symbolAddress,
+		decimals: row.decimals,
+	};
+}
 
 export default function TokenPage() {
 	const { t } = useI18n();
@@ -119,8 +180,7 @@ export default function TokenPage() {
 
 				if (nextToken.symbol) {
 					try {
-						const symbols = await loadTemplateConfig();
-						const quote = symbols.find((s) => s.symbol === nextToken.symbol);
+						const quote = await resolveQuoteMeta(nextToken.symbol);
 						if (quote) {
 							if (
 								nextToken.raisedAmount == null ||
@@ -128,8 +188,12 @@ export default function TokenPage() {
 							) {
 								nextToken.raisedAmount = quote.raisedAmount;
 							}
-							nextToken.quoteAddress = quote.symbolAddress;
-							nextToken.quoteDecimals = quote.decimals;
+							if (quote.symbolAddress) {
+								nextToken.quoteAddress = quote.symbolAddress;
+							}
+							if (quote.decimals != null) {
+								nextToken.quoteDecimals = quote.decimals;
+							}
 						}
 					} catch {
 						// ignore

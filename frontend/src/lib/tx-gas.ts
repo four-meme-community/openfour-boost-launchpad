@@ -10,7 +10,7 @@ import {
 	type TradeSettings,
 } from "./trade-settings";
 import { wagmiConfig } from "./wagmi";
-import { CHAIN } from "./chain";
+import { getActiveChain } from "./chain";
 
 export type TxGasOverrides = {
 	gasPrice?: bigint;
@@ -27,7 +27,7 @@ export async function resolveGasPrice(
 		}
 		return parseGwei(String(gwei));
 	}
-	const market = await getGasPrice(wagmiConfig, { chainId: CHAIN.id });
+	const market = await getGasPrice(wagmiConfig, { chainId: getActiveChain().id });
 	const mult = gasModeMultiplier(settings.gasMode);
 	return BigInt(Math.floor(Number(market) * mult));
 }
@@ -51,7 +51,7 @@ export async function resolveGasLimit(params: {
 			to: params.to,
 			data: params.data,
 			value: params.value,
-			chainId: CHAIN.id,
+			chainId: getActiveChain().id,
 		});
 		return (estimated * 120n) / 100n;
 	} catch {

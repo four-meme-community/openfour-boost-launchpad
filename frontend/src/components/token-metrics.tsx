@@ -18,6 +18,7 @@ import type {
 	TokenHeaderModel,
 	TokenHeaderTicker,
 } from "@/components/token-header";
+import { bondingProgressPct, resolveTargetRaiseAmount } from "@/lib/bonding-progress";
 
 export function deriveLiveMarketCap(
 	livePrice?: string | null,
@@ -66,16 +67,15 @@ export function TokenMetrics({
 		ticker?.marketCap,
 		token.totalAmount,
 	);
-	const progress = Number(ticker?.progress ?? 0);
-	const progressPct =
-		Number.isFinite(progress) && progress > 0
-			? progress <= 1
-				? progress * 100
-				: progress
-			: 0;
+	const progressPct = bondingProgressPct(ticker?.progress);
 	const chg = ticker?.dayIncrease ?? ticker?.increase;
 	const dayVol = ticker?.dayTrading || ticker?.tradingUsd;
 	const raised = ticker?.bnbAmount;
+	const targetRaise = resolveTargetRaiseAmount({
+		raisedAmount: token.raisedAmount,
+		raisedQuote: raised,
+		progress: ticker?.progress,
+	});
 
 	if (compact) {
 		const secondaryStats: {
@@ -87,6 +87,15 @@ export function TokenMetrics({
 				label: t("token.price"),
 				value: <PriceText value={price} />,
 			},
+			...(onDex
+				? []
+				: [
+						{
+							label: t("market.progress"),
+							value: `${progressPct.toFixed(2)}%`,
+							flashKey: progressPct,
+						},
+					]),
 			{
 				label: t("token.volume24h"),
 				value: `$${formatCompact(dayVol)}`,
@@ -178,8 +187,8 @@ export function TokenMetrics({
 		stats.splice(2, 0, {
 			label: t("token.targetRaise"),
 			value:
-				token.raisedAmount != null && token.raisedAmount !== ""
-					? `${formatNum(token.raisedAmount, 6)} ${token.symbol}`
+				targetRaise != null
+					? `${formatNum(targetRaise, 6)} ${token.symbol}`
 					: "—",
 		});
 		stats.splice(3, 0, {
@@ -233,7 +242,7 @@ export function TokenMetrics({
 						/>
 					</div>
 					<span className="muted">
-						{t("token.targetRaise")}: {formatNum(token.raisedAmount, 6)}{" "}
+						{t("token.targetRaise")}: {formatNum(targetRaise, 6)}{" "}
 						{token.symbol}
 						{" · "}
 						{t("token.raised")} {formatNum(raised, 6)} {token.symbol}

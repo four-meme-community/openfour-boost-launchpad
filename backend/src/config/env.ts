@@ -4,6 +4,12 @@
  * Security: `MEME_API_KEY` must never appear in public APIs.
  */
 import { z } from "zod";
+import { resolvePublicChains } from "./chains.js";
+import {
+	DEFAULT_CREATE_PRESETS,
+	parseCreatePresetMap,
+	presetIdsForChain,
+} from "./create-presets.js";
 
 const EnvSchema = z.object({
 	NODE_ENV: z
@@ -35,6 +41,20 @@ const EnvSchema = z.object({
 	SITE_TAGLINE: z.string().default(""),
 	SITE_LOGO_URL: z.string().default(""),
 	SITE_PRIMARY_COLOR: z.string().default("#111111"),
+
+	/**
+	 * Comma-separated catalog keys shown in the frontend switcher.
+	 * Keys: bsc, bsc-testnet, robinhood, robinhood-testnet
+	 */
+	ENABLED_CHAINS: z.string().min(1).default("bsc-testnet,robinhood-testnet"),
+	/** Catalog key or family id (bsc / robinhood). Must be in ENABLED_CHAINS. */
+	DEFAULT_CHAIN: z.string().min(1).default("bsc-testnet"),
+
+	/**
+	 * Per-chain OpenFour create preset IDs.
+	 * Format: `key:id,id;key:id`  (catalog key or family id).
+	 */
+	CREATE_PRESETS: z.string().default(DEFAULT_CREATE_PRESETS),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
@@ -51,6 +71,13 @@ function loadEnv(): Env {
 
 export const env = loadEnv();
 
+export const publicChains = resolvePublicChains({
+	enabledChains: env.ENABLED_CHAINS,
+	defaultChain: env.DEFAULT_CHAIN,
+});
+
+export const createPresetMap = parseCreatePresetMap(env.CREATE_PRESETS);
+
 export function corsOriginList(): string[] {
 	return env.CORS_ORIGINS.split(",")
 		.map((s) => s.trim())
@@ -63,5 +90,10 @@ export function publicSiteConfig() {
 		tagline: env.SITE_TAGLINE,
 		logoUrl: env.SITE_LOGO_URL || null,
 		primaryColor: env.SITE_PRIMARY_COLOR,
+		chains: publicChains.chains.map((chain) => ({
+			...chain,
+			presetIds: presetIdsForChain(createPresetMap, chain),
+		})),
+		defaultChain: publicChains.defaultChain,
 	} as const;
 }

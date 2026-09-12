@@ -13,6 +13,10 @@ import {
 	UpstreamError,
 } from "../lib/meme-web-client.js";
 import {
+	rewriteCreateTokenBody,
+	summarizeCreateTokenBody,
+} from "../lib/create-payload.js";
+import {
 	isProxyPathAllowed,
 	normalizeProxyPath,
 } from "../lib/path-allowlist.js";
@@ -31,23 +35,49 @@ proxyRoutes.all("/*", async (c) => {
 	}
 
 	const url = new URL(c.req.url);
-	const body =
+	const rawBody =
 		c.req.method === "GET" || c.req.method === "HEAD"
 			? null
 			: await c.req.arrayBuffer();
+	const body = rewriteCreateTokenBody(path, rawBody);
 
 	try {
+		const incomingHeaders = new Headers(c.req.raw.headers);
+		if (typeof body === "string") {
+			incomingHeaders.set("content-type", "application/json");
+		}
+
 		const upstream = await fetchMemeWeb({
 			method: c.req.method,
 			path,
 			query: url.search ? url.search.slice(1) : undefined,
 			body,
-			incomingHeaders: c.req.raw.headers,
+			incomingHeaders,
 			requestId: c.get("requestId"),
 		});
 
 		const headers = filterUpstreamResponseHeaders(upstream.headers);
 		headers.set("x-request-id", c.get("requestId"));
+
+		if (upstream.status >= 400) {
+			const raw = await upstream.text();
+			console.error(
+				JSON.stringify({
+					level: "error",
+					msg: "upstream",
+					requestId: c.get("requestId"),
+					method: c.req.method,
+					path,
+					status: upstream.status,
+					body: raw.slice(0, 2000),
+					create: summarizeCreateTokenBody(body),
+				}),
+			);
+			return new Response(raw, {
+				status: upstream.status,
+				headers,
+			});
+		}
 
 		return new Response(upstream.body, {
 			status: upstream.status,

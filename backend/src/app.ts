@@ -49,6 +49,7 @@ export function createApp() {
 				"Content-Type",
 				"Accept",
 				"meme-web-access",
+				"meme-network-code",
 				"X-Request-Id",
 			],
 			exposeHeaders: ["X-Request-Id"],

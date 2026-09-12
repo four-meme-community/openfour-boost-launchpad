@@ -4,7 +4,7 @@ import { JetBrains_Mono, Manrope } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { AppShell } from "@/components/app-shell";
 import { I18nProvider } from "@/i18n/provider";
-import { fetchSiteConfig, type SiteConfig } from "@/lib/bff";
+import { fetchSiteConfig, FALLBACK_SITE_CONFIG } from "@/lib/bff";
 import { isDarkThemeRoute, siteStyleVars } from "@/lib/theme";
 import { stripLocalePrefix } from "@/i18n/locale-path";
 import { defaultLocale, isLocale } from "@/i18n/config";
@@ -29,19 +29,12 @@ export const metadata: Metadata = {
 	description: "White-label meme token boost",
 };
 
-const FALLBACK: SiteConfig = {
-	name: "OpenFour Boost",
-	tagline: "Launch on your brand",
-	logoUrl: null,
-	primaryColor: "#111111",
-};
-
 export default async function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	let config = FALLBACK;
+	let config = FALLBACK_SITE_CONFIG;
 	try {
 		config = await fetchSiteConfig();
 	} catch {
@@ -65,7 +58,7 @@ export default async function RootLayout({
 				.join(" ")}
 		>
 			<body style={siteStyleVars(config)}>
-				<Providers>
+				<Providers siteConfig={config}>
 					<I18nProvider>
 						<AppShell siteName={config.name} tagline={config.tagline}>
 							{children}

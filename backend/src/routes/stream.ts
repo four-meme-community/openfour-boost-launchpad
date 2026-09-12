@@ -49,6 +49,7 @@ streamRoutes.get("/bars", async (c) => {
 
 	const typeEnum = typeEnumRaw;
 	const requestId = c.get("requestId");
+	const networkCode = c.req.query("networkCode");
 
 	return streamSSE(c, async (stream) => {
 		let closed = false;
@@ -67,7 +68,12 @@ streamRoutes.get("/bars", async (c) => {
 			void write("bar", bar);
 		};
 
-		const unsubscribe = memeWsHub.subscribeBar(tokenId, typeEnum, onBar);
+		const unsubscribe = memeWsHub.subscribeBar(
+			tokenId,
+			typeEnum,
+			onBar,
+			networkCode,
+		);
 
 		stream.onAbort(() => {
 			closed = true;
@@ -107,6 +113,7 @@ streamRoutes.get("/fills", async (c) => {
 	}
 
 	const requestId = c.get("requestId");
+	const networkCode = c.req.query("networkCode");
 
 	return streamSSE(c, async (stream) => {
 		let closed = false;
@@ -125,7 +132,11 @@ streamRoutes.get("/fills", async (c) => {
 			void write("fill", fill);
 		};
 
-		const unsubscribe = memeWsHub.subscribeFill(tokenId, onFill);
+		const unsubscribe = memeWsHub.subscribeFill(
+			tokenId,
+			onFill,
+			networkCode,
+		);
 
 		stream.onAbort(() => {
 			closed = true;

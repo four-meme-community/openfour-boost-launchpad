@@ -9,12 +9,14 @@
  */
 import { env } from "../config/env.js";
 import { REQUEST_ID_HEADER } from "../middleware/request-id.js";
+import { normalizeMemeNetworkCode } from "./meme-network.js";
 
 const FORWARD_REQUEST_HEADERS = new Set([
 	"content-type",
 	"accept",
 	"accept-language",
 	"meme-web-access",
+	"meme-network-code",
 	"cookie",
 ]);
 
@@ -74,6 +76,13 @@ function buildUpstreamHeaders(
 	out.delete("x-tenant-id");
 	out.delete("x-launchpad-id");
 	out.set(REQUEST_ID_HEADER, requestId);
+	out.set(
+		"meme-network-code",
+		normalizeMemeNetworkCode(out.get("meme-network-code")),
+	);
+	// fetch() sets length from the (possibly rewritten) body.
+	out.delete("content-length");
+	out.delete("transfer-encoding");
 
 	return out;
 }

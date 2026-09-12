@@ -24,6 +24,7 @@ import {
 	buyTokenV12,
 	estimateBuyByBudget,
 	estimateSell,
+	loadCommonConfig,
 	loadContracts,
 	loadTemplateConfig,
 	sellTokenV12,
@@ -50,6 +51,8 @@ import {
 	type TradeSettings,
 } from "@/lib/trade-settings";
 import { buildTxGas } from "@/lib/tx-gas";
+import { currentNativeQuoteSymbol } from "@/lib/chain";
+import { isNativeQuoteSymbol } from "@/lib/network";
 import { useI18n } from "@/i18n/provider";
 
 const PCTS = [0.25, 0.5, 0.75, 1] as const;
@@ -92,7 +95,7 @@ export function TradePanel({
 	const toast = useToast();
 	const [side, setSide] = useState<"buy" | "sell">("buy");
 	const [amount, setAmount] = useState("");
-	const [payWithBnb, setPayWithBnb] = useState(false);
+	const [payWithNative, setPayWithNative] = useState(false);
 	const [settings, setSettings] = useState<TradeSettings>(DEFAULT_TRADE_SETTINGS);
 	const [draft, setDraft] = useState<TradeSettings>(DEFAULT_TRADE_SETTINGS);
 	const [showSettings, setShowSettings] = useState(false);
@@ -114,43 +117,76 @@ export function TradePanel({
 	}, []);
 
 	const slippage = settings.slippage;
-
-	const quoteIsBnb = quoteSymbol === "BNB";
-	// ZapRouter external supports native BNB only; non-BNB quotes default to "Pay with BNB" externally
-	const settleNative = quoteIsBnb || payWithBnb;
+	/** Chain native ticker from BFF /v1/config (BSC=BNB, Robinhood=ETH). */
+	const nativeSymbol = currentNativeQuoteSymbol();
+	/** Pair quote is already chain native (BNB/ETH), not e.g. RETH/BNC4. */
+	const quoteIsChainNative = isNativeQuoteSymbol(quoteSymbol);
+	/**
+	 * Pay/receive chain native; bonding / ZapRouter convert to pair quote internally.
+	 * Toggle only when pair quote is a non-native id (RETH, BNC4, …).
+	 */
+	const settleNative = quoteIsChainNative || payWithNative;
 	const options = settleNative ? 2n : 0n;
 	const inputSymbol =
-		side === "sell" ? tokenSymbol : settleNative ? "BNB" : quoteSymbol;
+		side === "sell" ? tokenSymbol : settleNative ? nativeSymbol : quoteSymbol;
 	const receiveSymbol =
-		side === "buy" ? tokenSymbol : settleNative ? "BNB" : quoteSymbol;
+		side === "buy" ? tokenSymbol : settleNative ? nativeSymbol : quoteSymbol;
 
 	useEffect(() => {
-		if (quoteIsBnb) setPayWithBnb(false);
-		else if (onDex) setPayWithBnb(true);
-	}, [quoteIsBnb, onDex]);
+		if (quoteIsChainNative) setPayWithNative(false);
+		else if (onDex) setPayWithNative(true);
+	}, [quoteIsChainNative, onDex]);
 
 	useEffect(() => {
-		Promise.all([loadContracts(), loadTemplateConfig()])
-			.then(async ([c, symbols]) => {
+		let cancelled = false;
+		Promise.allSettled([loadTemplateConfig(), loadCommonConfig()]).then(
+			([templateResult, commonResult]) => {
+				if (cancelled) return;
+				const list =
+					templateResult.status === "fulfilled"
+						? templateResult.value || []
+						: [];
+				const common =
+					commonResult.status === "fulfilled"
+						? commonResult.value || []
+						: [];
+				const target = quoteSymbol.toUpperCase();
+				const fromTemplate = list.find(
+					(item) => item.symbol?.toUpperCase() === target,
+				);
+				const fromCommon = common.find(
+					(item) => item.symbol?.toUpperCase() === target,
+				);
+				const quote = fromTemplate || fromCommon;
+				const addr = quote?.symbolAddress as Address | undefined;
+				// BSC pair quoted as BNB: routing uses WBNB; balance/settle still chain native
+				setQuoteAsset(
+					quoteIsChainNative && nativeSymbol === "BNB" ? WBNB : addr || null,
+				);
+			},
+		);
+		return () => {
+			cancelled = true;
+		};
+	}, [nativeSymbol, quoteIsChainNative, quoteSymbol]);
+
+	useEffect(() => {
+		let cancelled = false;
+		loadContracts()
+			.then(async (c) => {
+				if (cancelled) return;
 				setCore(c.OpenFourCore);
 				setTools(c.OpenFourTools);
-				const quote =
-					symbols.find((item) => item.symbol === quoteSymbol) ||
-					symbols.find(
-						(item) =>
-							(item as { nativeSymbol?: string }).nativeSymbol ===
-							quoteSymbol,
-					);
-				const addr = quote?.symbolAddress as Address | undefined;
-				// BNB quote uses WBNB address for routing only; balance is native
-				setQuoteAsset(
-					quoteSymbol === "BNB" ? WBNB : addr || null,
-				);
 				const router = await resolveZapRouterAddress(c.OpenFourCore);
-				setZapRouter(router);
+				if (!cancelled) setZapRouter(router);
 			})
-			.catch(() => toast.error(t("error.contractLoad")));
-	}, [quoteSymbol, t, toast]);
+			.catch(() => {
+				if (!cancelled) toast.error(t("error.contractLoad"));
+			});
+		return () => {
+			cancelled = true;
+		};
+	}, [t, toast]);
 
 	useEffect(() => {
 		if (!onDex) {
@@ -190,7 +226,7 @@ export function TradePanel({
 		refetch: refetchQuote,
 	} = useErc20Balance(
 		address,
-		quoteIsBnb ? null : quoteAsset,
+		quoteIsChainNative ? null : quoteAsset,
 	);
 	const {
 		data: tokenBal,
@@ -215,7 +251,7 @@ export function TradePanel({
 		settlementDecimals,
 	);
 	const balanceLabelSymbol =
-		side === "sell" ? tokenSymbol : settleNative ? "BNB" : quoteSymbol;
+		side === "sell" ? tokenSymbol : settleNative ? nativeSymbol : quoteSymbol;
 	const balancePending =
 		!!address &&
 		((side === "buy" && settleNative && nativeFetching && !nativeBal) ||
@@ -574,16 +610,18 @@ export function TradePanel({
 					{balanceLabelSymbol}
 				</span>
 				<div className="trade-meta__right">
-					{!quoteIsBnb ? (
+					{!quoteIsChainNative ? (
 						<label className="trade-bnb-pay">
 							<span>
-								{side === "buy" ? t("trade.payBnb") : t("trade.receiveBnb")}
+								{side === "buy"
+									? t("trade.payNative", { token: nativeSymbol })
+									: t("trade.receiveNative", { token: nativeSymbol })}
 							</span>
 							<input
 								type="checkbox"
-								checked={payWithBnb}
+								checked={payWithNative}
 								onChange={(e) => {
-									setPayWithBnb(e.target.checked);
+									setPayWithNative(e.target.checked);
 									setAmount("");
 								}}
 							/>

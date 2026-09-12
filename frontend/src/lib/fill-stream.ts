@@ -4,6 +4,7 @@
  */
 import { publicEnv } from "./env";
 import type { TokenFill } from "./meme-api";
+import { getClientMemeNetworkCode } from "./network";
 
 export type FillStreamPush = TokenFill & {
 	channel?: string;
@@ -19,7 +20,10 @@ export function subscribeFillStream(
 	params: { tokenId: number },
 	handlers: FillStreamHandlers,
 ): () => void {
-	const qs = new URLSearchParams({ tokenId: String(params.tokenId) });
+	const qs = new URLSearchParams({
+		tokenId: String(params.tokenId),
+		networkCode: getClientMemeNetworkCode(),
+	});
 	const url = `${publicEnv.bffUrl}/v1/stream/fills?${qs}`;
 	const es = new EventSource(url, { withCredentials: true });
 

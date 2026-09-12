@@ -6,14 +6,20 @@ import {
 	useContext,
 	useEffect,
 	useMemo,
+	Suspense,
 } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import type { Locale } from "@/i18n/config";
 import { getLocaleFromPath, localizePath } from "@/i18n/locale-path";
 import {
 	translations,
 	type TranslationKey,
 } from "@/i18n/translations";
+import {
+	getMemeNetworkCodeFromQuery,
+	MEME_NETWORK_QUERY,
+	withMemeNetworkQuery,
+} from "@/lib/network";
 
 type I18nValue = {
 	locale: Locale;
@@ -23,9 +29,13 @@ type I18nValue = {
 
 const I18nContext = createContext<I18nValue | null>(null);
 
-export function I18nProvider({ children }: { children: ReactNode }) {
+function I18nProviderInner({ children }: { children: ReactNode }) {
 	const pathname = usePathname();
+	const searchParams = useSearchParams();
 	const locale = getLocaleFromPath(pathname);
+	const networkCode = getMemeNetworkCodeFromQuery(
+		searchParams.get(MEME_NETWORK_QUERY),
+	);
 
 	useEffect(() => {
 		document.documentElement.lang = locale;
@@ -42,11 +52,20 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 				}
 				return text;
 			},
-			href: (target) => localizePath(target, locale),
+			href: (target) =>
+				withMemeNetworkQuery(localizePath(target, locale), networkCode),
 		};
-	}, [locale]);
+	}, [locale, networkCode]);
 
 	return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
+}
+
+export function I18nProvider({ children }: { children: ReactNode }) {
+	return (
+		<Suspense>
+			<I18nProviderInner>{children}</I18nProviderInner>
+		</Suspense>
+	);
 }
 
 export function useI18n(): I18nValue {

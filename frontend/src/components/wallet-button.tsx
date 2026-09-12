@@ -8,7 +8,7 @@ import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { useToast } from "@/components/toast";
 import { UserMenu } from "@/components/user-menu";
 import { useAuth } from "@/hooks/auth-provider";
-import { CHAIN } from "@/lib/chain";
+import { getActiveChain } from "@/lib/chain";
 import { formatAddress } from "@/lib/format";
 import { useI18n } from "@/i18n/provider";
 
@@ -26,7 +26,7 @@ export function WalletButton() {
 		try {
 			const injected = connectors.find((c) => c.id === "injected") || connectors[0];
 			if (!injected) throw new Error("wallet_unavailable");
-			await connectAsync({ connector: injected, chainId: CHAIN.id });
+			await connectAsync({ connector: injected, chainId: getActiveChain().id });
 		} catch {
 			toast.error(t("error.walletConnect"));
 		} finally {

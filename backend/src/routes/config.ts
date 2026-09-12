@@ -1,7 +1,7 @@
 /**
- * GET /v1/config — public site branding config.
+ * GET /v1/config — public site branding + switchable chains.
  *
- * Purpose: frontend loads name / theme colors at boot for white-label.
+ * Purpose: frontend loads name / theme / chain switcher list at boot.
  * Security: response deliberately omits MEME_API_KEY, upstream URLs, etc.
  */
 import { Hono } from "hono";

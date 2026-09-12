@@ -14,6 +14,7 @@ import type {
 	TokenHeaderTicker,
 } from "@/components/token-header";
 import { useTokenLiquidity } from "@/hooks/use-token-liquidity";
+import { bondingProgressPct, resolveTargetRaiseAmount } from "@/lib/bonding-progress";
 import { formatAddress, formatCompact, formatNum } from "@/lib/format";
 import { isTokenOnDex } from "@/lib/meme-api";
 import { useI18n } from "@/i18n/provider";
@@ -36,6 +37,14 @@ export function TokenInfoCard({
 		token.totalAmount,
 	);
 	const onDex = isTokenOnDex(ticker?.status ?? token.status);
+	const progressPct = bondingProgressPct(ticker?.progress);
+	const raisedQuote = ticker?.bnbAmount;
+	const quoteLabel = token.symbol || "—";
+	const targetRaise = resolveTargetRaiseAmount({
+		raisedAmount: token.raisedAmount,
+		raisedQuote,
+		progress: ticker?.progress,
+	});
 	const { liquidity: calculatedLiquidity } = useTokenLiquidity({
 		onDex,
 		tokenAddress: token.address,
@@ -62,6 +71,33 @@ export function TokenInfoCard({
 	return (
 		<section className="token-info-card">
 			<h2>{t("token.info")}</h2>
+			{!onDex ? (
+				<div className="token-info-progress">
+					<div className="token-info-progress-head">
+						<span className="muted">{t("market.progress")}</span>
+						<strong>{progressPct.toFixed(2)}%</strong>
+					</div>
+					<div className="token-progress-track">
+						<div
+							className="token-progress-bar"
+							style={{
+								width: `${Math.min(100, Math.max(0, progressPct))}%`,
+							}}
+						/>
+					</div>
+					<p className="muted token-info-progress-meta">
+						{t("token.raised")}{" "}
+						{raisedQuote != null && raisedQuote !== ""
+							? `${formatNum(raisedQuote, 6)} ${quoteLabel}`
+							: "—"}
+						{" · "}
+						{t("token.targetRaise")}{" "}
+						{targetRaise
+							? `${formatNum(targetRaise, 6)} ${quoteLabel}`
+							: "—"}
+					</p>
+				</div>
+			) : null}
 			<dl>
 				<dt>{t("token.name")}</dt>
 				<dd>{token.name || "—"}</dd>

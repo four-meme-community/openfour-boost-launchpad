@@ -24,7 +24,7 @@ import {
 	type ReactNode,
 } from "react";
 import { useAccount, useSignMessage, useSwitchChain } from "wagmi";
-import { CHAIN, toMemeApiNetworkName } from "@/lib/chain";
+import { getActiveChain, toMemeApiNetworkName } from "@/lib/chain";
 import { bindInviteCode } from "@/lib/invite-api";
 import {
 	clearAccessToken,
@@ -104,8 +104,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		setError(null);
 
 		try {
-			if (chainId !== CHAIN.id) {
-				await switchChainAsync({ chainId: CHAIN.id });
+			const targetChain = getActiveChain();
+			if (chainId !== targetChain.id) {
+				await switchChainAsync({ chainId: targetChain.id });
 			}
 
 			const networkCode = toMemeApiNetworkName();
