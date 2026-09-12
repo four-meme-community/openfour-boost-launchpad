@@ -1,0 +1,248 @@
+/**
+ * Market cap / progress / volume metrics (detail floating docker top).
+ */
+"use client";
+
+import type { ReactNode } from "react";
+import { FlashValue } from "@/components/flash-value";
+import { PriceText } from "@/components/price-text";
+import {
+	formatCompact,
+	formatNum,
+	formatPct,
+	formatSupply,
+} from "@/lib/format";
+import { useI18n } from "@/i18n/provider";
+import { isTokenOnDex } from "@/lib/meme-api";
+import type {
+	TokenHeaderModel,
+	TokenHeaderTicker,
+} from "@/components/token-header";
+
+export function deriveLiveMarketCap(
+	livePrice?: string | null,
+	tickerPrice?: string | null,
+	tickerMarketCap?: string | null,
+	totalSupply?: string | number | null,
+): string | number | undefined {
+	const live = Number(livePrice);
+	if (!Number.isFinite(live) || live <= 0) return tickerMarketCap ?? undefined;
+
+	const snapshotPrice = Number(tickerPrice);
+	const snapshotCap = Number(tickerMarketCap);
+	if (
+		Number.isFinite(snapshotPrice) &&
+		snapshotPrice > 0 &&
+		Number.isFinite(snapshotCap) &&
+		snapshotCap >= 0
+	) {
+		return snapshotCap * (live / snapshotPrice);
+	}
+
+	const supply = Number(totalSupply);
+	return Number.isFinite(supply) && supply > 0
+		? live * supply
+		: tickerMarketCap ?? undefined;
+}
+
+export function TokenMetrics({
+	token,
+	ticker,
+	livePrice,
+	compact = false,
+}: {
+	token: TokenHeaderModel;
+	ticker?: TokenHeaderTicker | null;
+	livePrice?: string | null;
+	compact?: boolean;
+}) {
+	const { t } = useI18n();
+	const status = ticker?.status ?? token.status;
+	const onDex = isTokenOnDex(status);
+	const price = livePrice || ticker?.price;
+	const marketCap = deriveLiveMarketCap(
+		livePrice,
+		ticker?.price,
+		ticker?.marketCap,
+		token.totalAmount,
+	);
+	const progress = Number(ticker?.progress ?? 0);
+	const progressPct =
+		Number.isFinite(progress) && progress > 0
+			? progress <= 1
+				? progress * 100
+				: progress
+			: 0;
+	const chg = ticker?.dayIncrease ?? ticker?.increase;
+	const dayVol = ticker?.dayTrading || ticker?.tradingUsd;
+	const raised = ticker?.bnbAmount;
+
+	if (compact) {
+		const secondaryStats: {
+			label: string;
+			value: ReactNode;
+			flashKey?: string | number | null;
+		}[] = [
+			{
+				label: t("token.price"),
+				value: <PriceText value={price} />,
+			},
+			{
+				label: t("token.volume24h"),
+				value: `$${formatCompact(dayVol)}`,
+				flashKey: dayVol,
+			},
+			{
+				label: t("market.holders"),
+				value:
+					typeof ticker?.holderCount === "number"
+						? ticker.holderCount.toLocaleString()
+						: "—",
+				flashKey: ticker?.holderCount,
+			},
+		];
+
+		return (
+			<div className="token-metrics token-metrics--compact">
+				<div className="token-metrics-hero">
+					<span className="muted">{t("token.marketCap")}</span>
+					<div className="token-metrics-hero-row">
+						<FlashValue
+							value={marketCap}
+							as="strong"
+							className="token-metrics-hero-value"
+						>
+							${formatCompact(marketCap, 2)}
+						</FlashValue>
+						<FlashValue
+							value={chg}
+							className={Number(chg ?? 0) >= 0 ? "chg up" : "chg down"}
+						>
+							{formatPct(chg)}
+						</FlashValue>
+					</div>
+				</div>
+				<div className="token-metrics-secondary">
+					{secondaryStats.map((item) => (
+						<div key={item.label} className="token-stat">
+							<span className="muted">{item.label}</span>
+							{item.flashKey !== undefined ? (
+								<FlashValue value={item.flashKey} as="strong">
+									{item.value}
+								</FlashValue>
+							) : (
+								<strong>{item.value}</strong>
+							)}
+						</div>
+					))}
+				</div>
+			</div>
+		);
+	}
+
+	const stats: {
+		label: string;
+		value: ReactNode;
+		flashKey?: string | number | null;
+	}[] = [
+		{ label: t("token.price"), value: <PriceText value={price} /> },
+		{
+			label: onDex ? t("token.pool") : t("market.progress"),
+			value: onDex
+				? `$${formatCompact(ticker?.liquidity)}`
+				: `${progressPct.toFixed(2)}%`,
+			flashKey: onDex ? ticker?.liquidity : progressPct,
+		},
+		{
+			label: t("token.volume24h"),
+			value: `$${formatCompact(dayVol)}`,
+			flashKey: dayVol,
+		},
+		{
+			label: t("token.tradingVolume"),
+			value: `$${formatCompact(ticker?.trading)}`,
+			flashKey: ticker?.trading,
+		},
+		{
+			label: t("token.totalSupply"),
+			value: formatSupply(token.totalAmount),
+		},
+		{
+			label: t("token.change24h"),
+			value: formatPct(chg),
+			flashKey: chg,
+		},
+	];
+
+	if (!onDex) {
+		stats.splice(2, 0, {
+			label: t("token.targetRaise"),
+			value:
+				token.raisedAmount != null && token.raisedAmount !== ""
+					? `${formatNum(token.raisedAmount, 6)} ${token.symbol}`
+					: "—",
+		});
+		stats.splice(3, 0, {
+			label: t("token.raised"),
+			value:
+				raised != null && raised !== ""
+					? `${formatNum(raised, 6)} ${token.symbol}`
+					: "—",
+			flashKey: raised,
+		});
+	}
+
+	return (
+		<div className="token-metrics">
+			<div className="token-mcap">
+				<span className="muted">{t("token.marketCap")}</span>
+				<FlashValue value={marketCap} as="strong">
+					${formatCompact(marketCap, 2)}
+				</FlashValue>
+				<FlashValue
+					value={chg}
+					className={
+						Number(chg ?? 0) >= 0 ? "chg up" : "chg down"
+					}
+				>
+					{formatPct(chg)}
+				</FlashValue>
+			</div>
+			<div className="token-stats">
+				{stats.map((item) => (
+					<div key={item.label} className="token-stat">
+						<span className="muted">{item.label}</span>
+						{item.flashKey !== undefined ? (
+							<FlashValue value={item.flashKey} as="strong">
+								{item.value}
+							</FlashValue>
+						) : (
+							<strong>{item.value}</strong>
+						)}
+					</div>
+				))}
+			</div>
+			{!onDex ? (
+				<div className="token-progress">
+					<div className="token-progress-track">
+						<div
+							className="token-progress-bar"
+							style={{
+								width: `${Math.min(100, Math.max(0, progressPct))}%`,
+							}}
+						/>
+					</div>
+					<span className="muted">
+						{t("token.targetRaise")}: {formatNum(token.raisedAmount, 6)}{" "}
+						{token.symbol}
+						{" · "}
+						{t("token.raised")} {formatNum(raised, 6)} {token.symbol}
+						{" · "}
+						{t("token.sale")} {formatSupply(token.saleAmount)} /{" "}
+						{formatSupply(token.totalAmount)}
+					</span>
+				</div>
+			) : null}
+		</div>
+	);
+}

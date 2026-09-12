@@ -1,0 +1,23 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8787:8787"
+    env_file:
+      - ./backend/.env
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8787
+      CORS_ORIGINS: http://localhost:3000
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_BFF_URL: http://localhost:8787
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      PORT: 3000
