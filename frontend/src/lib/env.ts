@@ -21,7 +21,6 @@ export const publicEnv = {
 	),
 	/** PROD = BSC 56 + Robinhood 4663; otherwise BSC testnet 97 + Robinhood testnet 46630 */
 	isProd: process.env.NEXT_PUBLIC_MODE === "PROD",
-	wcProjectId: process.env.NEXT_PUBLIC_PROJECT_ID || "",
 	/** BSC fallback template; per-chain create presets come from BFF /v1/config */
 	openFourTemplateId: Number(
 		process.env.NEXT_PUBLIC_OPEN_FOUR_TEMPLATE_ID || "1778027615733",

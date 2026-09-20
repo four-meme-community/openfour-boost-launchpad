@@ -1,16 +1,18 @@
 /**
- * Wallet login via official-site Web API (same as meme-launcher):
+ * Wallet login via official-site Web API:
  * nonce → sign → login/dex → cookie user_token → header meme-web-access
+ *
+ * After wallet connect: restore session if possible; otherwise auto-prompt
+ * personal_sign once per address (manual retry via WalletButton).
  *
  * Partner public docs have no user session; login/profile/rebate all use Web.
  *
  * One shared Context for the whole app so WalletButton and /referral stay in sync
  * (login on one page should not require a refresh elsewhere).
  *
- * Invite auto-bind (like meme-launcher `use-wallet-auth.js` + landing `?code=`):
+ * Invite auto-bind from landing `?code=`:
  * share links look like `${origin}?code=CODE` or `${origin}/token/xxx?code=CODE`.
- * This root Provider is the single place that captures it — no per-page copy like
- * meme-launcher home / detail / competition pages.
+ * This root Provider is the single place that captures it.
  */
 "use client";
 
@@ -72,6 +74,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	/** Invite code from landing `?code=`; in-memory only — cleared on logout/tab close */
 	const [pendingInviteCode, setPendingInviteCode] = useState("");
 	const boundCodeRef = useRef<string | null>(null);
+	/** One auto sign-in attempt per connected address (after session check). */
+	const autoLoginTriedRef = useRef("");
 
 	useEffect(() => {
 		const code = new URLSearchParams(window.location.search).get("code");
@@ -175,31 +179,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		}
 		clearAccessToken();
 		setUser(null);
+		autoLoginTriedRef.current = "";
 		setStatus("unauthenticated");
 	}, []);
+
+	const loginRef = useRef(login);
+	loginRef.current = login;
 
 	useEffect(() => {
 		const id = ++runId.current;
 		(async () => {
 			if (!isConnected || !address) {
 				setUser(null);
+				autoLoginTriedRef.current = "";
 				setStatus("unauthenticated");
 				return;
 			}
+			const normalized = address.toLowerCase();
 			setStatus("checking");
 			try {
 				const info = await loadUser();
 				if (runId.current !== id) return;
 				if (
 					info?.address &&
-					info.address.toLowerCase() === address.toLowerCase()
+					info.address.toLowerCase() === normalized
 				) {
 					setUser(info);
 					setStatus("authenticated");
+					autoLoginTriedRef.current = normalized;
 					return;
 				}
+
 				setUser(null);
-				setStatus("unauthenticated");
+				if (autoLoginTriedRef.current === normalized) {
+					setStatus("unauthenticated");
+					return;
+				}
+				autoLoginTriedRef.current = normalized;
+				try {
+					await loginRef.current();
+				} catch {
+					// User reject / failure → stay unauthenticated; WalletButton can retry.
+					if (runId.current === id) setStatus("unauthenticated");
+				}
 			} catch {
 				if (runId.current !== id) return;
 				setStatus("unauthenticated");

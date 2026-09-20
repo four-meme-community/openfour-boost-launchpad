@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
 	poweredByHeader: false,
 	reactStrictMode: true,
 	webpack: (config) => {
-		// WalletConnect logger optionally requires pino-pretty; unused in the browser.
+		// Optional pretty logger dependency; unused in the browser.
 		config.resolve.alias = {
 			...config.resolve.alias,
 			"pino-pretty": false,
