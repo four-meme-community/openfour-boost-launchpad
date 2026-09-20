@@ -15,6 +15,9 @@ export type ParamDesc = {
 	optional: boolean;
 	defaultValue: string;
 	title?: string;
+	hint?: string;
+	minValue?: string;
+	maxValue?: string;
 };
 
 export type ModuleSchema = {
@@ -99,6 +102,9 @@ export function mapModuleSchema(raw: {
 		optional: boolean;
 		defaultValue: string;
 		title?: string;
+		hint?: string;
+		minValue?: string;
+		maxValue?: string;
 	}>;
 }): ModuleSchema {
 	return {
@@ -111,6 +117,9 @@ export function mapModuleSchema(raw: {
 			optional: p.optional,
 			defaultValue: p.defaultValue,
 			title: p.title,
+			hint: p.hint,
+			minValue: p.minValue,
+			maxValue: p.maxValue,
 		})),
 	};
 }

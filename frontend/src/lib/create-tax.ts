@@ -1,13 +1,13 @@
 /**
  * Tax-template create: defaults, detection, validation (aligned with meme-launcher Stock4 / custom tax).
  */
-import { isAddress, zeroHash } from "viem";
+import { isAddress } from "viem";
 import type { ParamDesc } from "./open-four-encode";
-
-export const DEFAULT_TAX_VAULT = {
-	typeId: zeroHash,
-	initParamsHex: "0x" as const,
-};
+import {
+	DEFAULT_TAX_VAULT_SELECTION,
+	isCustomRoyalty,
+	type TaxVaultSelection,
+} from "./tax-vault";
 
 export type CreateTaxAllocation = {
 	/** Recipient wallet share % */
@@ -24,6 +24,8 @@ export type CreateTaxInfo = {
 	taxMinSharing: number;
 	taxWalletAddress: string;
 	taxTokenInfo: CreateTaxAllocation;
+	/** Royalty / TaxVault template selection */
+	taxVault: TaxVaultSelection;
 };
 
 /** Stock4 / generic custom-tax defaults: 100% to recipient wallet, 1% fee */
@@ -38,6 +40,7 @@ export const DEFAULT_CREATE_TAX_INFO: CreateTaxInfo = {
 		divideToHolders: 0,
 		addToLiquidity: 0,
 	},
+	taxVault: { ...DEFAULT_TAX_VAULT_SELECTION },
 };
 
 export function isTaxTokenSchema(params: ParamDesc[]): boolean {
@@ -70,7 +73,15 @@ export function validateCreateTaxInfo(info: CreateTaxInfo): string | null {
 		return `Tax allocation must sum to 100% (currently ${total}%)`;
 	}
 
-	if (Number(info.taxTokenInfo.fundsRecipient) > 0) {
+	const vault = info.taxVault ?? DEFAULT_TAX_VAULT_SELECTION;
+	if (!isCustomRoyalty(vault.typeId) && vault.schemaLoadStatus !== "valid") {
+		return "Please load a valid royalty template";
+	}
+
+	if (
+		isCustomRoyalty(vault.typeId) &&
+		Number(info.taxTokenInfo.fundsRecipient) > 0
+	) {
 		const addr = info.taxWalletAddress.trim();
 		if (!addr || !isAddress(addr)) {
 			return "Enter a valid tax recipient address";
@@ -92,8 +103,10 @@ export function taxInfoToFormFields(
 	info: CreateTaxInfo,
 	fallbackFounder: string,
 ): Record<string, unknown> {
+	const vault = info.taxVault ?? DEFAULT_TAX_VAULT_SELECTION;
+	const useCustomWallet = isCustomRoyalty(vault.typeId);
 	const founder =
-		Number(info.taxTokenInfo.fundsRecipient) > 0
+		Number(info.taxTokenInfo.fundsRecipient) > 0 && useCustomWallet
 			? info.taxWalletAddress.trim() || fallbackFounder
 			: fallbackFounder;
 
@@ -106,7 +119,7 @@ export function taxInfoToFormFields(
 		rateLiquidity: Number(info.taxTokenInfo.addToLiquidity) || 0,
 		minShare: Number(info.taxMinSharing) || 10000,
 		founder,
-		taxVaultTypeId: DEFAULT_TAX_VAULT.typeId,
-		taxVaultInitParams: DEFAULT_TAX_VAULT.initParamsHex,
+		taxVaultTypeId: vault.typeId,
+		taxVaultInitParams: vault.initParamsHex,
 	};
 }

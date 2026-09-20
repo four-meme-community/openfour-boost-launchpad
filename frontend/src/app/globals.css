@@ -888,6 +888,86 @@ a {
 	font-size: 0.82rem;
 }
 
+.create-tax-royalty {
+	display: flex;
+	flex-direction: column;
+	gap: 0.55rem;
+}
+
+.create-tax-unverified-block {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	margin-top: 0.15rem;
+}
+
+.create-tax-unverified {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.create-tax-note {
+	padding: 0.75rem 0.85rem;
+	border-radius: var(--radius-md, 10px);
+	border: 1px solid rgba(245, 200, 76, 0.35);
+	background: rgba(245, 200, 76, 0.08);
+	color: #e7d7a3;
+}
+
+.create-tax-note strong {
+	display: block;
+	font-size: 0.86rem;
+	margin-bottom: 0.25rem;
+	color: #f5c84c;
+}
+
+.create-tax-note p {
+	margin: 0;
+	font-size: 0.8rem;
+	line-height: 1.45;
+	opacity: 0.95;
+}
+
+.create-tax-field-hint {
+	display: block;
+	margin-top: 0.3rem;
+	font-size: 0.75rem;
+	text-transform: none;
+	letter-spacing: normal;
+	font-weight: 450;
+}
+
+.create-tax-unverified-params {
+	display: flex;
+	flex-direction: column;
+	gap: 0.7rem;
+}
+
+.create-tax-unverified-params-title {
+	margin: 0.15rem 0 0;
+	font-size: 0.9rem;
+	font-weight: 600;
+}
+
+.create-tax-schema-fields {
+	display: flex;
+	flex-direction: column;
+	gap: 0.7rem;
+}
+
+.create-tax-skel {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.create-tax-skel-field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+}
+
 .create-tax-rates,
 .create-tax-alloc-grid {
 	display: grid;
@@ -3074,6 +3154,28 @@ html.theme-detail .create-field-label em {
 	font-family: var(--font-mono);
 }
 
+html.theme-detail .create-field-label-inline {
+	justify-content: flex-start;
+	gap: 0.2rem;
+}
+
+html.theme-detail .create-field-required {
+	color: #ff4a32;
+	font-style: normal;
+	font-weight: 700;
+	font-size: 0.95em;
+	line-height: 1;
+	font-family: inherit;
+	text-transform: none;
+}
+
+html.theme-detail .create-tax-field-hint {
+	text-transform: none;
+	letter-spacing: normal;
+	font-weight: 450;
+	color: var(--ink-faint);
+}
+
 html.theme-detail .create-page input,
 html.theme-detail .create-page select,
 html.theme-detail .create-page textarea {
@@ -3086,6 +3188,8 @@ html.theme-detail .create-page textarea {
 	color: var(--ink);
 	font: inherit;
 	font-size: 0.88rem;
+	text-transform: none;
+	letter-spacing: normal;
 	transition:
 		border-color 0.15s ease,
 		box-shadow 0.15s ease;
@@ -3482,6 +3586,20 @@ html.theme-detail .create-tax {
 html.theme-detail .create-tax-hint {
 	margin: 0;
 	font-size: 0.78rem;
+}
+
+html.theme-detail .create-tax-note {
+	border-color: rgba(245, 200, 76, 0.35);
+	background: rgba(43, 36, 19, 0.92);
+	color: #e7d7a3;
+}
+
+html.theme-detail .create-tax-note strong {
+	color: #f5c84c;
+}
+
+html.theme-detail .create-tax-skel .skeleton {
+	background: rgba(255, 255, 255, 0.06);
 }
 
 html.theme-detail .create-tax-rates {

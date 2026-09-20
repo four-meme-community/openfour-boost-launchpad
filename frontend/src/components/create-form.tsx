@@ -16,6 +16,7 @@ import {
 	validateCreateTaxInfo,
 	type CreateTaxInfo,
 } from "@/lib/create-tax";
+import { isCustomRoyalty } from "@/lib/tax-vault";
 import {
 	createOpenFourToken,
 	enrichRaisedWithLogos,
@@ -879,6 +880,14 @@ function CreateFormInner() {
 									<dd>{taxInfo.taxFeeRateBuy}%</dd>
 								</div>
 								<div>
+									<dt>{t("create.tax.royalty.template")}</dt>
+									<dd>
+										{isCustomRoyalty(taxInfo.taxVault?.typeId)
+											? t("create.tax.royalty.custom")
+											: t("create.tax.royalty.unverified")}
+									</dd>
+								</div>
+								<div>
 									<dt>{t("create.tax.sellRate")}</dt>
 									<dd>{taxInfo.taxFeeRateSell}%</dd>
 								</div>
@@ -898,14 +907,16 @@ function CreateFormInner() {
 									<dt>{t("create.tax.liquidity")}</dt>
 									<dd>{taxInfo.taxTokenInfo.addToLiquidity}%</dd>
 								</div>
-								<div className="create-summary-wide">
-									<dt>{t("create.tax.wallet")}</dt>
-									<dd>
-										{taxInfo.taxWalletAddress
-											? formatAddress(taxInfo.taxWalletAddress, 4)
-											: "—"}
-									</dd>
-								</div>
+								{isCustomRoyalty(taxInfo.taxVault?.typeId) ? (
+									<div className="create-summary-wide">
+										<dt>{t("create.tax.wallet")}</dt>
+										<dd>
+											{taxInfo.taxWalletAddress
+												? formatAddress(taxInfo.taxWalletAddress, 4)
+												: "—"}
+										</dd>
+									</div>
+								) : null}
 							</>
 						) : (
 							<div>
