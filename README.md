@@ -6,6 +6,8 @@ Tokens created under the OpenFour Boost solution are surfaced and traded via the
 
 [中文文档](./README.zh-CN.md)
 
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new)
+
 | Item | Detail |
 |------|--------|
 | Partner model | **One deploy, one `MEME_API_KEY`** |
@@ -125,7 +127,8 @@ Browser
 │   ├── Dockerfile
 │   └── .env.example
 ├── docker-compose.yml
-├── fourmeme-api-doc-v2.md    Upstream partner API reference
+├── docs/
+│   └── fourmeme-api-doc-v2.md    Upstream partner API reference
 ├── README.md
 └── README.zh-CN.md
 ```
@@ -257,7 +260,7 @@ curl -s http://localhost:8787/v1/config | jq .
 curl -s 'http://localhost:8787/v1/tokens?pageIndex=1&pageSize=10' | jq .
 ```
 
-Upstream request shapes: [fourmeme-api-doc-v2.md](./fourmeme-api-doc-v2.md).
+Upstream request shapes: [docs/fourmeme-api-doc-v2.md](./docs/fourmeme-api-doc-v2.md).
 
 ---
 
@@ -298,9 +301,11 @@ Notes:
 
 ## One-click deploy on Railway
 
-Use **two services**, each with its own `Dockerfile`:
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new)
 
-1. **Create a Project** → import this repo from GitHub.
+Click the button to open Railway’s new-project page, then import this GitHub repo and configure **two services** (each with its own `Dockerfile`) as below:
+
+1. **Create a Project** → Deploy from GitHub repo and select this repository (or open the button above, then pick the repo).
 2. **Backend service**
    - Root Directory: `backend`
    - Set Variables from `backend/.env.example` (at least `MEME_API_KEY`, `MEME_WEB_BASE_URL`, `MEME_WS_URL`)
@@ -370,7 +375,7 @@ Suggested workflow: adjust env → `pnpm smoke` → run BFF + frontend locally �
 - [README.zh-CN.md](./README.zh-CN.md) — Chinese
 - [backend/README.md](./backend/README.md) — BFF channel notes
 - [frontend/README.md](./frontend/README.md) — Frontend boundary notes
-- [fourmeme-api-doc-v2.md](./fourmeme-api-doc-v2.md) — Upstream partner API reference
+- [docs/fourmeme-api-doc-v2.md](./docs/fourmeme-api-doc-v2.md) — Upstream partner API reference
 
 ---
 

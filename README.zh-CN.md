@@ -6,6 +6,8 @@
 
 [English](./README.md)
 
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new)
+
 | 项 | 说明 |
 |----|------|
 | 伙伴模型 | **一部署对应一把 `MEME_API_KEY`** |
@@ -125,7 +127,8 @@ Browser
 │   ├── Dockerfile
 │   └── .env.example
 ├── docker-compose.yml
-├── fourmeme-api-doc-v2.md    上游合作方 API 参考
+├── docs/
+│   └── fourmeme-api-doc-v2.md    上游合作方 API 参考
 ├── README.md
 └── README.zh-CN.md
 ```
@@ -257,7 +260,7 @@ curl -s http://localhost:8787/v1/config | jq .
 curl -s 'http://localhost:8787/v1/tokens?pageIndex=1&pageSize=10' | jq .
 ```
 
-上游请求形态见 [fourmeme-api-doc-v2.md](./fourmeme-api-doc-v2.md)。
+上游请求形态见 [docs/fourmeme-api-doc-v2.md](./docs/fourmeme-api-doc-v2.md)。
 
 ---
 
@@ -298,9 +301,11 @@ docker run -p 3000:3000 openfour-boost-web
 
 ## 一键部署到 Railway
 
-推荐拆成两个服务（各自用对应目录的 `Dockerfile`）：
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new)
 
-1. **新建 Project** → 从 GitHub 导入本仓库。
+点击按钮打开 Railway 新建项目页，再按下方从 GitHub 导入本仓库并配置 **两个服务**（各自用对应目录的 `Dockerfile`）：
+
+1. **新建 Project** → Deploy from GitHub repo，选择本仓库（或使用上方按钮后手动选择）。
 2. **Backend 服务**
    - Root Directory：`backend`
    - 在 Variables 填入 `backend/.env.example` 中的项（至少 `MEME_API_KEY`、`MEME_WEB_BASE_URL`、`MEME_WS_URL`）
@@ -370,7 +375,7 @@ docker run -p 3000:3000 openfour-boost-web
 - [README.md](./README.md) — English
 - [backend/README.md](./backend/README.md) — BFF 通道说明
 - [frontend/README.md](./frontend/README.md) — 前端边界说明
-- [fourmeme-api-doc-v2.md](./fourmeme-api-doc-v2.md) — 上游合作方 API 参考
+- [docs/fourmeme-api-doc-v2.md](./docs/fourmeme-api-doc-v2.md) — 上游合作方 API 参考
 
 ---
 
