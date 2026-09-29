@@ -154,6 +154,7 @@ Copy from `backend/.env.example`.
 |----------|-------------|
 | `MEME_WEB_BASE_URL` | Upstream HTTP API origin (e.g. `https://four.meme`) |
 | `MEME_API_KEY` | Partner key — **never** put in the frontend or `/v1/config` |
+| `FILTER_BY_PARTNER` | Default `true`: home list only shows tokens created under this key; set `false` to disable |
 | `MEME_WS_URL` | Upstream market WebSocket (BFF only) |
 | `MEME_WEB_TIMEOUT_MS` | Outbound timeout (ms) |
 | `CORS_ORIGINS` | Comma-separated Origins; must include the frontend origin |

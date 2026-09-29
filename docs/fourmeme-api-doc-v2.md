@@ -891,7 +891,8 @@ Search tokens by keyword and other filters.
   "listType": "NOR",
   "tag": ["Meme"],
   "status": "ALL",
-  "sort": "DESC"
+  "sort": "DESC",
+  "filterByPartner": true
 }
 ```
 
@@ -909,6 +910,7 @@ Search tokens by keyword and other filters.
 | `status` | string | No | Filter by token status. Enum: `PUBLISH`, `TRADE`, `ALL`. Defaults to `ALL`. |
 | `sort` | string | No | Sort direction. Enum: `ASC`, `DESC`. Defaults to `DESC`. |
 | `version` | string | No | Filter by token version. Enum: `NOR`, `V9`, `V10`. |
+| `filterByPartner` | boolean | No | When `true`, filter tokens created under the partner key from header `meme-api-key`. Omit/`false` to skip. |
 
 #### Response Example
 

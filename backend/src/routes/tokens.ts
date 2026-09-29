@@ -45,6 +45,7 @@ tokensRoutes.get("/", async (c) => {
 		version,
 		...(keyword ? { keyword } : {}),
 		...(templateId ? { templateId: Number(templateId) } : {}),
+		...(env.FILTER_BY_PARTNER ? { filterByPartner: true } : {}),
 	};
 
 	try {
@@ -83,6 +84,7 @@ tokensRoutes.get("/meta", (c) =>
 			upstream: "/meme-api/api/v1/public/token/search",
 			auth: "meme-api-key only (no RSA)",
 			versionFilter: "V12",
+			filterByPartner: env.FILTER_BY_PARTNER,
 			tabs: {
 				new: { type: "NEW", listType: "TEP", status: "PUBLISH" },
 				soon: { type: "PROGRESS", listType: "TEP", status: "PUBLISH" },

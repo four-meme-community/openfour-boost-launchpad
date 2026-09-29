@@ -154,6 +154,7 @@ Browser
 |------|------|
 | `MEME_WEB_BASE_URL` | 上游 HTTP API origin（如 `https://four.meme`） |
 | `MEME_API_KEY` | 合作方 Key — **禁止**写入前端或 `/v1/config` |
+| `FILTER_BY_PARTNER` | 默认 `true`：首页列表只展示本 Key 创建的 token；设为 `false` 关闭 |
 | `MEME_WS_URL` | 上游行情 WebSocket（仅 BFF 使用） |
 | `MEME_WEB_TIMEOUT_MS` | 出站超时（毫秒） |
 | `CORS_ORIGINS` | 逗号分隔 Origin，须包含前端 Origin |

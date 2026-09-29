@@ -27,6 +27,15 @@ const EnvSchema = z.object({
 		.min(8)
 		.describe("partner apiKey; sent as meme-api-key header"),
 
+	/**
+	 * When true (default), token list search sends filterByPartner so meme-web
+	 * only returns tokens created under this deploy's MEME_API_KEY.
+	 */
+	FILTER_BY_PARTNER: z
+		.enum(["true", "false"])
+		.default("true")
+		.transform((v) => v === "true"),
+
 	MEME_WEB_TIMEOUT_MS: z.coerce.number().int().positive().default(30_000),
 
 	/** meme-web market WebSocket; BFF-only — frontend must not connect directly */

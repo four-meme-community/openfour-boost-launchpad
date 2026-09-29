@@ -20,6 +20,7 @@ import {
 	isProxyPathAllowed,
 	normalizeProxyPath,
 } from "../lib/path-allowlist.js";
+import { rewriteTokenSearchBody } from "../lib/search-payload.js";
 import type { AppVariables } from "../middleware/error-handler.js";
 
 export const proxyRoutes = new Hono<{ Variables: AppVariables }>();
@@ -39,7 +40,10 @@ proxyRoutes.all("/*", async (c) => {
 		c.req.method === "GET" || c.req.method === "HEAD"
 			? null
 			: await c.req.arrayBuffer();
-	const body = rewriteCreateTokenBody(path, rawBody);
+	const body = rewriteTokenSearchBody(
+		path,
+		rewriteCreateTokenBody(path, rawBody),
+	);
 
 	try {
 		const incomingHeaders = new Headers(c.req.raw.headers);
