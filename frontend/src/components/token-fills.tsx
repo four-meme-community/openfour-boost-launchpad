@@ -143,7 +143,9 @@ export function TokenFills({
 								<PriceText value={f.price} prefixDollar={false} />
 							</span>
 							<span>{formatCompact(f.amount, 3)}</span>
-							<span>{formatCompact(f.volume, 4)}</span>
+							<span>
+								<PriceText value={f.volume} prefixDollar={false} />
+							</span>
 						</a>
 					);
 				})}

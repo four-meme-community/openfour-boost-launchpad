@@ -1,5 +1,5 @@
 /**
- * Unit price display: $0.0₈1595 (subscript compress when leading zeros ≥4).
+ * Unit price display: $0.0₈1595 (subscript compress when leading zeros ≥3).
  * Flash blur/gradient on value change.
  */
 "use client";
@@ -26,7 +26,7 @@ export function PriceText({
 		);
 	}
 
-	if (parts.zeros < 4) {
+	if (parts.zeros < 3) {
 		const text = prefixDollar
 			? parts.text
 			: parts.text.replace(/^\$/, "");

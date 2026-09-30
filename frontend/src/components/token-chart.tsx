@@ -15,7 +15,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { Skeleton } from "@/components/skeleton";
 import { subscribeBarStream } from "@/lib/bar-stream";
-import { formatChartPrice, priceFormatFromValues } from "@/lib/format";
+import { formatChartPrice, formatChartVolume, priceFormatFromValues } from "@/lib/format";
 import {
 	acceptRealtimeBar,
 	barRealtimeCategory,
@@ -284,8 +284,14 @@ export function TokenChart({
 			priceFormat: { type: "price", precision: 12, minMove: 1e-12 },
 		});
 		const volumes = chart.addSeries(HistogramSeries, {
-			priceFormat: { type: "volume" },
+			priceFormat: {
+				type: "custom",
+				formatter: formatChartVolume,
+				minMove: 1e-12,
+			},
 			priceScaleId: "volume",
+			lastValueVisible: true,
+			priceLineVisible: false,
 		});
 		chart.priceScale("right").applyOptions({
 			visible: true,

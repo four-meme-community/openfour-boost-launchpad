@@ -4,6 +4,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { CopyIcon } from "@/components/copy-icon";
 import { FlashValue } from "@/components/flash-value";
 import {
@@ -14,10 +15,17 @@ import type {
 	TokenHeaderTicker,
 } from "@/components/token-header";
 import { useTokenLiquidity } from "@/hooks/use-token-liquidity";
+import { useTokenTradeFlags } from "@/hooks/use-token-trade-flags";
 import { bondingProgressPct, resolveTargetRaiseAmount } from "@/lib/bonding-progress";
 import { formatAddress, formatCompact, formatNum } from "@/lib/format";
 import { isTokenOnDex } from "@/lib/meme-api";
 import { useI18n } from "@/i18n/provider";
+
+function formatTaxPct(n: number): string {
+	if (!Number.isFinite(n) || n <= 0) return "0";
+	const rounded = Math.round(n * 100) / 100;
+	return Number.isInteger(rounded) ? String(rounded) : String(rounded);
+}
 
 export function TokenInfoCard({
 	token,
@@ -28,8 +36,11 @@ export function TokenInfoCard({
 	ticker?: TokenHeaderTicker | null;
 	livePrice?: string | null;
 }) {
-	const { t } = useI18n();
-	const [copied, setCopied] = useState(false);
+	const { t, href } = useI18n();
+	const [copied, setCopied] = useState<"token" | "creator" | null>(null);
+	const flags = useTokenTradeFlags(token.address);
+	const hasTax = flags.feeRateBuy > 0 || flags.feeRateSell > 0;
+	const description = token.descr?.trim() || "";
 	const marketCap = deriveLiveMarketCap(
 		livePrice,
 		ticker?.price,
@@ -58,13 +69,13 @@ export function TokenInfoCard({
 	});
 	const liquidity = calculatedLiquidity ?? ticker?.liquidity;
 
-	const copyAddress = async () => {
+	const copyText = async (value: string, kind: "token" | "creator") => {
 		try {
-			await navigator.clipboard.writeText(token.address);
-			setCopied(true);
-			window.setTimeout(() => setCopied(false), 1200);
+			await navigator.clipboard.writeText(value);
+			setCopied(kind);
+			window.setTimeout(() => setCopied(null), 1200);
 		} catch {
-			setCopied(false);
+			setCopied(null);
 		}
 	};
 
@@ -105,12 +116,19 @@ export function TokenInfoCard({
 				<dt>{t("token.symbol")}</dt>
 				<dd>{token.shortName || "—"}</dd>
 
+				{description ? (
+					<>
+						<dt>{t("token.description")}</dt>
+						<dd className="token-info-desc-dd">{description}</dd>
+					</>
+				) : null}
+
 				<dt>{t("token.contract")}</dt>
 				<dd>
 					<button
 						type="button"
-						className={`token-info-copy${copied ? " copied" : ""}`}
-						onClick={copyAddress}
+						className={`token-info-copy${copied === "token" ? " copied" : ""}`}
+						onClick={() => copyText(token.address, "token")}
 						title={token.address}
 						aria-label={t("token.copyContract")}
 					>
@@ -118,6 +136,35 @@ export function TokenInfoCard({
 						<CopyIcon />
 					</button>
 				</dd>
+
+				<dt>{t("token.developer")}</dt>
+				<dd>
+					{token.userAddress ? (
+						<button
+							type="button"
+							className={`token-info-copy${copied === "creator" ? " copied" : ""}`}
+							onClick={() =>
+								copyText(token.userAddress as string, "creator")
+							}
+							title={token.userAddress}
+							aria-label={t("token.copyDeveloper")}
+						>
+							{formatAddress(token.userAddress, 4)}
+							<CopyIcon />
+						</button>
+					) : (
+						"—"
+					)}
+				</dd>
+
+				{hasTax ? (
+					<>
+						<dt>{t("tax.buyTax")}</dt>
+						<dd>{formatTaxPct(flags.feeRateBuy)}%</dd>
+						<dt>{t("tax.sellTax")}</dt>
+						<dd>{formatTaxPct(flags.feeRateSell)}%</dd>
+					</>
+				) : null}
 
 				<dt>{t("token.decimals")}</dt>
 				<dd>{token.decimals ?? "—"}</dd>
@@ -139,6 +186,14 @@ export function TokenInfoCard({
 					</FlashValue>
 				</dd>
 			</dl>
+			{hasTax ? (
+				<Link
+					href={href(`/token/${token.address}/tax`)}
+					className="token-info-tax-link"
+				>
+					{t("token.viewTaxDetails")}
+				</Link>
+			) : null}
 		</section>
 	);
 }

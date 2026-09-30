@@ -44,8 +44,8 @@ export type CompactPriceParts = {
 };
 
 /**
- * Tiny unit price: $0.0₈1595 (compress when leading zeros ≥4).
- * e.g. 0.000000001595 → $0.0₈1595
+ * Tiny unit price: $0.0₈1595 (compress when leading zeros ≥3).
+ * e.g. 0.000000001595 → $0.0₈1595；0.000985 → $0.0₃9852
  */
 export function formatCompactPriceParts(
 	value?: string | number | null,
@@ -79,7 +79,7 @@ export function formatCompactPriceParts(
 	const sigRaw =
 		frac.slice(zeros, zeros + significantDigits).replace(/0+$/, "") || "0";
 
-	if (zeros >= 4) {
+	if (zeros >= 3) {
 		const text = `${prefix}0.0${toSubscript(zeros)}${sigRaw}`;
 		return { prefix, zeros, significant: sigRaw, text };
 	}
@@ -109,10 +109,18 @@ export function formatChartPrice(value: number): string {
 	return parts.text.replace(/^\$/, "");
 }
 
+/** Chart volume labels: K/M/B when large, otherwise same tiny-price compression. */
+export function formatChartVolume(value: number): string {
+	if (!Number.isFinite(value)) return "";
+	const abs = Math.abs(value);
+	if (abs >= 1000) return formatCompact(value, 2);
+	return formatChartPrice(value);
+}
+
 /** Meme price precision: avoid formatNum truncating 1e-7 to 0; tiny prices use compressed form */
-export function formatPrice(value?: string | number | null, maxDigits = 18) {
+export function formatPrice(value?: string | number | null, maxDigits = 6) {
 	const compact = formatCompactPriceParts(value, 4);
-	if (compact && compact.zeros >= 4) return compact.text.replace(/^\$/, "");
+	if (compact && compact.zeros >= 3) return compact.text.replace(/^\$/, "");
 
 	if (value == null || value === "") return "—";
 	const raw = String(value).trim();
@@ -137,7 +145,7 @@ export function formatPrice(value?: string | number | null, maxDigits = 18) {
 
 	const digits = Math.min(
 		maxDigits,
-		Math.max(8, Math.ceil(-Math.log10(abs)) + 4),
+		Math.max(4, Math.ceil(-Math.log10(abs)) + 3),
 	);
 	return n
 		.toFixed(digits)
@@ -173,7 +181,7 @@ export function formatCompact(
 	if (abs >= 1e3) return `${sign}${(abs / 1e3).toFixed(digits)}K`;
 	if (abs >= 1) return `${sign}${abs.toFixed(digits)}`;
 	if (abs === 0) return "0";
-	return formatPrice(n);
+	return formatPrice(value);
 }
 
 /** Age since create: 6d / 3h / 12m */

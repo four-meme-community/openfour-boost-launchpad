@@ -117,21 +117,19 @@ export function TokenHeader({
 						>
 							{pair}
 						</h1>
-						{flags.antiSniperEnabled ? <AntiSniperFeeTip /> : null}
-						{hasTax ? (
-							<Link
-								href={href(`/token/${token.address}/tax`)}
-								className="token-tax-badge"
-							>
-								{t("token.tax")}: {formatTaxPct(flags.feeRateBuy)}% /{" "}
-								{formatTaxPct(flags.feeRateSell)}%
-							</Link>
-						) : null}
+						<div className="token-title-badges">
+							{flags.antiSniperEnabled ? <AntiSniperFeeTip /> : null}
+							{hasTax ? (
+								<Link
+									href={href(`/token/${token.address}/tax`)}
+									className="token-tax-badge"
+								>
+									{t("token.tax")} {formatTaxPct(flags.feeRateBuy)}% /{" "}
+									{formatTaxPct(flags.feeRateSell)}%
+								</Link>
+							) : null}
+						</div>
 					</div>
-
-					{token.descr ? (
-						<p className="token-desc">{token.descr}</p>
-					) : null}
 
 					<div className="token-meta-row">
 						<span className="token-age">{formatAge(token.createDate)}</span>
