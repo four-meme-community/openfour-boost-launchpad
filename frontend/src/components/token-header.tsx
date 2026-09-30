@@ -84,12 +84,12 @@ export function TokenHeader({
 	livePrice?: string | null;
 }) {
 	const { t, href } = useI18n();
-	const [copied, setCopied] = useState<"token" | "dev" | null>(null);
+	const [copied, setCopied] = useState<"token" | null>(null);
 	const flags = useTokenTradeFlags(token.address);
 	const hasTax = flags.feeRateBuy > 0 || flags.feeRateSell > 0;
 	const pair = tokenPairLabel(token);
 
-	const copyText = async (value: string, kind: "token" | "dev") => {
+	const copyText = async (value: string, kind: "token") => {
 		try {
 			await navigator.clipboard.writeText(value);
 			setCopied(kind);
@@ -143,18 +143,6 @@ export function TokenHeader({
 							{formatAddress(token.address, 4)}
 							<CopyIcon />
 						</button>
-						{token.userAddress ? (
-							<button
-								type="button"
-								className={`token-addr${copied === "dev" ? " copied" : ""}`}
-								onClick={() => copyText(token.userAddress as string, "dev")}
-								title={token.userAddress}
-								aria-label={t("token.copyDeveloper")}
-							>
-								{t("token.developer")} {formatAddress(token.userAddress, 3)}
-								<CopyIcon />
-							</button>
-						) : null}
 					</div>
 
 					<div className="token-links">

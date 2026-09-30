@@ -11,10 +11,13 @@ import { Skeleton } from "@/components/skeleton";
 import {
 	fetchTokenList,
 	imageUrl,
+	isTokenOnDex,
 	type MarketTab,
 	type TokenListItem,
 } from "@/lib/meme-api";
 import { formatCompact, formatPct } from "@/lib/format";
+import { toUsdMarketCap } from "@/lib/quote-usd";
+import { useQuoteTickerPrices } from "@/hooks/use-quote-ticker-prices";
 import { useI18n } from "@/i18n/provider";
 
 const TABS: MarketTab[] = ["new", "soon", "graduated"];
@@ -38,6 +41,7 @@ export function TokenSideList({
 	activeAddress?: string | null;
 }) {
 	const { href, t } = useI18n();
+	const { priceOf } = useQuoteTickerPrices();
 	const [tab, setTab] = useState<MarketTab>("new");
 	const [query, setQuery] = useState("");
 	const [debounced, setDebounced] = useState("");
@@ -156,6 +160,10 @@ export function TokenSideList({
 					const addr = (item.tokenAddress || "").toLowerCase();
 					const isActive = !!active && addr === active;
 					const chg = item.day1Increase ?? item.increase;
+					const marketCapUsd = toUsdMarketCap(item.cap, {
+						onDex: isTokenOnDex(item.status),
+						quoteUsd: priceOf(item.symbol),
+					});
 					return (
 						<Link
 							key={item.tokenAddress || item.tokenId}
@@ -172,8 +180,8 @@ export function TokenSideList({
 							/>
 							<div className="token-side-meta">
 								<strong>{item.shortName || item.name}</strong>
-								<FlashValue value={item.cap} className="token-side-cap">
-									${formatCompact(item.cap)} MC
+								<FlashValue value={marketCapUsd} className="token-side-cap">
+									${formatCompact(marketCapUsd)} MC
 								</FlashValue>
 							</div>
 							<div className="token-side-quote">

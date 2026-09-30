@@ -20,6 +20,8 @@ import {
 	formatCompact,
 	formatPct,
 } from "@/lib/format";
+import { toUsdMarketCap, toUsdVolume } from "@/lib/quote-usd";
+import { useQuoteTickerPrices } from "@/hooks/use-quote-ticker-prices";
 import { useI18n } from "@/i18n/provider";
 
 const TABS: MarketTab[] = ["new", "soon", "graduated"];
@@ -146,6 +148,7 @@ function MarketTableSkeleton() {
 
 export function TokenList() {
 	const { href, t } = useI18n();
+	const { priceOf } = useQuoteTickerPrices();
 	const [tab, setTab] = useState<MarketTab>("new");
 	const [period, setPeriod] = useState<Period>("1d");
 	const [items, setItems] = useState<TokenListItem[]>([]);
@@ -252,6 +255,15 @@ export function TokenList() {
 						<tbody>
 							{items.map((t) => {
 								const onDex = isTokenOnDex(t.status);
+								const quoteUsd = priceOf(t.symbol);
+								const marketCapUsd = toUsdMarketCap(t.cap, {
+									onDex,
+									quoteUsd,
+								});
+								const volumeUsd = toUsdVolume(volumeForItem(t), {
+									onDex,
+									quoteUsd,
+								});
 								const progress = Number(t.progress);
 								const progressPct =
 									Number.isFinite(progress) && progress > 0
@@ -300,10 +312,10 @@ export function TokenList() {
 											<ChangeCell value={changeForPeriod(t, period)} />
 										</td>
 										<td className="mkt-num">
-											${formatCompact(t.cap)}
+											${formatCompact(marketCapUsd)}
 										</td>
 										<td className="mkt-num">
-											${formatCompact(volumeForItem(t))}
+											${formatCompact(volumeUsd)}
 										</td>
 										<td className="mkt-num">
 											{tab === "graduated" || onDex ? (

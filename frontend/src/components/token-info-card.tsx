@@ -16,6 +16,7 @@ import type {
 } from "@/components/token-header";
 import { useTokenLiquidity } from "@/hooks/use-token-liquidity";
 import { useTokenTradeFlags } from "@/hooks/use-token-trade-flags";
+import { useQuoteTickerPrices } from "@/hooks/use-quote-ticker-prices";
 import { bondingProgressPct, resolveTargetRaiseAmount } from "@/lib/bonding-progress";
 import { formatAddress, formatCompact, formatNum } from "@/lib/format";
 import { isTokenOnDex } from "@/lib/meme-api";
@@ -38,16 +39,19 @@ export function TokenInfoCard({
 }) {
 	const { t, href } = useI18n();
 	const [copied, setCopied] = useState<"token" | "creator" | null>(null);
+	const { priceOf } = useQuoteTickerPrices();
 	const flags = useTokenTradeFlags(token.address);
 	const hasTax = flags.feeRateBuy > 0 || flags.feeRateSell > 0;
 	const description = token.descr?.trim() || "";
+	const onDex = isTokenOnDex(ticker?.status ?? token.status);
+	const quoteUsd = priceOf(token.symbol);
 	const marketCap = deriveLiveMarketCap(
 		livePrice,
 		ticker?.price,
 		ticker?.marketCap,
 		token.totalAmount,
+		{ onDex, quoteUsd },
 	);
-	const onDex = isTokenOnDex(ticker?.status ?? token.status);
 	const progressPct = bondingProgressPct(ticker?.progress);
 	const raisedQuote = ticker?.bnbAmount;
 	const quoteLabel = token.symbol || "—";

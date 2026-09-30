@@ -31,3 +31,4 @@ Thumbs.db
 
 # Docker
 *.pid
+backend/pnpm-workspace.yaml

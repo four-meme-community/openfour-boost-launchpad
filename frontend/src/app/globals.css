@@ -1258,7 +1258,7 @@ html:not(.theme-detail) .wallet-modal__icon-fallback {
 
 .token-title {
 	font-family: var(--font-sans);
-	font-size: 1.2rem;
+	font-size: 1.05rem;
 	margin: 0;
 	line-height: 1.2;
 	letter-spacing: -0.02em;
@@ -2621,7 +2621,7 @@ html.theme-detail .token-header-identity {
 }
 
 html.theme-detail .token-title {
-	font-size: 1.15rem;
+	font-size: 1rem;
 	font-weight: 750;
 	line-height: 1.15;
 	letter-spacing: -0.03em;
