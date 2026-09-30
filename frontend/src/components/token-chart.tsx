@@ -15,7 +15,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { Skeleton } from "@/components/skeleton";
 import { subscribeBarStream } from "@/lib/bar-stream";
-import { priceFormatFromValues } from "@/lib/format";
+import { formatChartPrice, priceFormatFromValues } from "@/lib/format";
 import {
 	acceptRealtimeBar,
 	barRealtimeCategory,
@@ -243,6 +243,9 @@ export function TokenChart({
 				textColor: "#8a8a8a",
 				fontSize: 12,
 				fontFamily: monoFont,
+			},
+			localization: {
+				priceFormatter: formatChartPrice,
 			},
 			grid: {
 				vertLines: { color: "rgba(255,255,255,0.04)" },

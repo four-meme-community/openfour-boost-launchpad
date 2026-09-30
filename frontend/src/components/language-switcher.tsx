@@ -1,15 +1,11 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
 import { locales, type Locale } from "@/i18n/config";
-import { localizePath } from "@/i18n/locale-path";
 import { useI18n } from "@/i18n/provider";
 
 export function LanguageSwitcher() {
-	const pathname = usePathname();
-	const router = useRouter();
-	const { locale, t } = useI18n();
+	const { locale, setLocale, t } = useI18n();
 	const [open, setOpen] = useState(false);
 	const rootRef = useRef<HTMLDivElement>(null);
 	const menuId = useId();
@@ -33,8 +29,7 @@ export function LanguageSwitcher() {
 	const selectLocale = (next: Locale) => {
 		setOpen(false);
 		if (next === locale) return;
-		document.cookie = `NEXT_LOCALE=${next};path=/;max-age=31536000;samesite=lax`;
-		router.push(`${localizePath(pathname, next)}${window.location.search}`);
+		setLocale(next);
 	};
 
 	return (

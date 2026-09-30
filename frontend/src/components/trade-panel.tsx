@@ -95,7 +95,7 @@ export function TradePanel({
 	const toast = useToast();
 	const [side, setSide] = useState<"buy" | "sell">("buy");
 	const [amount, setAmount] = useState("");
-	const [payWithNative, setPayWithNative] = useState(false);
+	const [payWithNative, setPayWithNative] = useState(true);
 	const [settings, setSettings] = useState<TradeSettings>(DEFAULT_TRADE_SETTINGS);
 	const [draft, setDraft] = useState<TradeSettings>(DEFAULT_TRADE_SETTINGS);
 	const [showSettings, setShowSettings] = useState(false);
@@ -134,7 +134,7 @@ export function TradePanel({
 
 	useEffect(() => {
 		if (quoteIsChainNative) setPayWithNative(false);
-		else if (onDex) setPayWithNative(true);
+		else setPayWithNative(true);
 	}, [quoteIsChainNative, onDex]);
 
 	useEffect(() => {

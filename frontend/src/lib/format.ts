@@ -36,16 +36,16 @@ function toPlainDecimal(value: string | number): string | null {
 
 export type CompactPriceParts = {
 	prefix: string;
-	/** Subscript zero count; 0 means no compression */
+	/** Leading fractional zeros; 0 means no compression */
 	zeros: number;
 	significant: string;
-	/** Plain text: $0.0₄190 */
+	/** Plain text: $0.0₈1595 */
 	text: string;
 };
 
 /**
- * Tiny unit price: $0.0₄190 (compress when leading zeros ≥4).
- * e.g. 0.0000006672 → $0.0₆6672
+ * Tiny unit price: $0.0₈1595 (compress when leading zeros ≥4).
+ * e.g. 0.000000001595 → $0.0₈1595
  */
 export function formatCompactPriceParts(
 	value?: string | number | null,
@@ -76,7 +76,8 @@ export function formatCompactPriceParts(
 		return { prefix, zeros: 0, significant: "0", text: `${prefix}0` };
 	}
 
-	const sigRaw = frac.slice(zeros, zeros + significantDigits).replace(/0+$/, "") || "0";
+	const sigRaw =
+		frac.slice(zeros, zeros + significantDigits).replace(/0+$/, "") || "0";
 
 	if (zeros >= 4) {
 		const text = `${prefix}0.0${toSubscript(zeros)}${sigRaw}`;
@@ -98,6 +99,14 @@ export function formatCompactPrice(
 	significantDigits = 4,
 ): string {
 	return formatCompactPriceParts(value, significantDigits)?.text ?? "—";
+}
+
+/** Chart axis / crosshair: no `$`, same `0.0₈1595` compression (Unicode subscripts). */
+export function formatChartPrice(value: number): string {
+	if (!Number.isFinite(value)) return "";
+	const parts = formatCompactPriceParts(value, 4);
+	if (!parts) return String(value);
+	return parts.text.replace(/^\$/, "");
 }
 
 /** Meme price precision: avoid formatNum truncating 1e-7 to 0; tiny prices use compressed form */

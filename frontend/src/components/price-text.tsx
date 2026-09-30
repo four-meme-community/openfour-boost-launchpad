@@ -1,5 +1,5 @@
 /**
- * Unit price display: $0.0₄190 (subscript compress when leading zeros ≥4).
+ * Unit price display: $0.0₈1595 (subscript compress when leading zeros ≥4).
  * Flash blur/gradient on value change.
  */
 "use client";

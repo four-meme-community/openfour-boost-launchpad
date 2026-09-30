@@ -12,7 +12,7 @@ export function siteStyleVars(config: SiteConfig): CSSProperties {
 }
 
 /**
- * Routes covered by dark + neon-green visuals (no locale prefix).
+ * Routes covered by dark + neon-green visuals (no locale/chain prefix).
  * Root layout uses this for SSR to avoid a light→dark flash on refresh;
  * AppShell reuses the same check on client navigations.
  */

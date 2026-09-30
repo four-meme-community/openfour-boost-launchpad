@@ -4,15 +4,15 @@
  */
 "use client";
 
-import { Suspense, useId, useMemo, useRef, useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useId, useMemo, useRef, useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { useToast } from "@/components/toast";
 import { useSiteConfig } from "@/hooks/site-config";
+import { parseChainQueryFromPath } from "@/i18n/locale-path";
 import { getWagmiChain } from "@/lib/chain";
 import {
 	goHomeAndReload,
 	MEME_NETWORK_ID,
-	MEME_NETWORK_QUERY,
 	setClientMemeNetworkCode,
 	type MemeNetworkId,
 } from "@/lib/network";
@@ -61,27 +61,31 @@ function shortNetworkLabel(label: string, max = 4) {
 	return first.slice(0, max);
 }
 
-function NetworkSwitcherContent() {
+export function NetworkSwitcher() {
 	const { t } = useI18n();
 	const toast = useToast();
 	const { chains, defaultChain } = useSiteConfig();
-	const searchParams = useSearchParams();
+	const pathname = usePathname();
 	const [open, setOpen] = useState(false);
 	const [switchingCode, setSwitchingCode] = useState("");
 	const rootRef = useRef<HTMLDivElement>(null);
 	const menuId = useId();
-	const query = searchParams.get(MEME_NETWORK_QUERY);
+	const pathQuery = parseChainQueryFromPath(pathname);
 	const current = useMemo(() => {
-		const fromQuery = chains.find(
-			(item) =>
-				item.query === query || item.id === query || item.key === query,
-		);
+		const fromPath = pathQuery
+			? chains.find(
+					(item) =>
+						item.query === pathQuery ||
+						item.id === pathQuery ||
+						item.key === pathQuery,
+				)
+			: null;
 		return (
-			fromQuery ||
+			fromPath ||
 			chains.find((item) => item.key === defaultChain) ||
 			chains[0]
 		);
-	}, [chains, defaultChain, query]);
+	}, [chains, defaultChain, pathQuery]);
 
 	useEffect(() => {
 		if (!open) return;
@@ -173,34 +177,5 @@ function NetworkSwitcherContent() {
 				})}
 			</div>
 		</div>
-	);
-}
-
-function NetworkSwitcherFallback() {
-	const { chains, defaultChain } = useSiteConfig();
-	const current =
-		chains.find((item) => item.key === defaultChain) || chains[0];
-	const { t } = useI18n();
-	if (!current || chains.length < 2) return null;
-	return (
-		<div className="language-switcher network-switcher">
-			<button
-				type="button"
-				className="language-switcher-trigger"
-				aria-label={`${t("network.label")}: ${current.label}`}
-				disabled
-			>
-				<NetworkIcon networkId={current.id} />
-				<span>{shortNetworkLabel(current.label)}</span>
-			</button>
-		</div>
-	);
-}
-
-export function NetworkSwitcher() {
-	return (
-		<Suspense fallback={<NetworkSwitcherFallback />}>
-			<NetworkSwitcherContent />
-		</Suspense>
 	);
 }

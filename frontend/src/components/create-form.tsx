@@ -4,7 +4,7 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useState, type DragEvent, type ReactNode } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAccount } from "wagmi";
 import { CreateTaxFields } from "@/components/create-tax-fields";
 import { Skeleton } from "@/components/skeleton";
@@ -31,7 +31,7 @@ import {
 import { formatAddress } from "@/lib/format";
 import { imageUrl, uploadTokenImage } from "@/lib/meme-api";
 import { isOptionalCreateUrlInputOk } from "@/lib/create-url";
-import { MEME_NETWORK_QUERY } from "@/lib/network";
+import { parseChainQueryFromPath } from "@/i18n/locale-path";
 import {
 	formatBalanceWei,
 	useErc20Balance,
@@ -157,10 +157,10 @@ function CreateFormInner() {
 	const { address, isConnected } = useAccount();
 	const { isAuthenticated, login } = useAuth();
 	const router = useRouter();
-	const searchParams = useSearchParams();
+	const pathname = usePathname();
 	const { chains, defaultChain } = useSiteConfig();
 	const currentChain = useMemo(() => {
-		const query = searchParams.get(MEME_NETWORK_QUERY);
+		const query = parseChainQueryFromPath(pathname);
 		return (
 			chains.find(
 				(item) =>
@@ -169,7 +169,7 @@ function CreateFormInner() {
 			chains.find((item) => item.key === defaultChain) ||
 			chains[0]
 		);
-	}, [chains, defaultChain, searchParams]);
+	}, [chains, defaultChain, pathname]);
 	const presetIds = useMemo(
 		() =>
 			(currentChain?.presetIds || []).map(String).filter(Boolean),

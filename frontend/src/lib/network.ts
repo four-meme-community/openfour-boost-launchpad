@@ -1,11 +1,18 @@
 /**
- * Cross-chain selection (aligned with meme-launcher).
+ * Cross-chain selection.
  *
- * Switchable chains come from BFF `/v1/config`. Encoding stays:
- * - URL `?chain=` uses each chain's `query` (omitted for the default chain)
- * - Header `meme-network-code` uses each chain's `code` (BSC=0, Robinhood=8)
+ * Switchable chains come from BFF `/v1/config`. Encoding:
+ * - URL path always uses each chain's `query` as the first segment
+ *   e.g. `/bsc/token/0x…`, `/robinhood/token/0x…`
+ * - Header / cookie `meme-network-code` uses each chain's `code` (BSC=0, Robinhood=8)
+ * - Legacy `?chain=` / bare routes are redirected to the path form by middleware
  */
 import Cookies from "js-cookie";
+import {
+	getAppRoutePath,
+	isChainPathQuery,
+	parseChainQueryFromPath,
+} from "@/i18n/locale-path";
 import {
 	getConfiguredChains,
 	getDefaultPublicChain,
@@ -16,6 +23,7 @@ import {
 
 export const MEME_NETWORK_COOKIE = "meme-network-code";
 export const MEME_NETWORK_HEADER = "meme-network-code";
+/** @deprecated Prefer path segment; kept for legacy query redirects. */
 export const MEME_NETWORK_QUERY = "chain";
 
 export const MEME_NETWORK_CODE = {
@@ -84,12 +92,11 @@ export function getMemeNetworkCodeFromQuery(
 	if (value == null || String(value).trim() === "") {
 		return getDefaultPublicChain().code;
 	}
+	const raw = String(value).trim().toLowerCase();
 	const chain = getPublicChainByQuery(value);
 	const enabled = getConfiguredChains().some(
 		(item) =>
-			item.query === String(value).trim().toLowerCase() ||
-			item.id === String(value).trim().toLowerCase() ||
-			item.key === String(value).trim().toLowerCase(),
+			item.query === raw || item.id === raw || item.key === raw,
 	);
 	return enabled ? chain.code : getDefaultPublicChain().code;
 }
@@ -142,15 +149,15 @@ export function parseMemeNetworkCodeFromCookieHeader(
 	}
 }
 
-/** Client: URL `?chain=` first; server / no window: cookie. */
+/** Client: path chain segment first; then cookie. */
 export function getClientMemeNetworkCode(): MemeNetworkCode {
 	if (typeof window !== "undefined") {
-		const raw = new URLSearchParams(window.location.search).get(
+		const fromPath = parseChainQueryFromPath(window.location.pathname);
+		if (fromPath) return getMemeNetworkCodeFromQuery(fromPath);
+		const fromQuery = new URLSearchParams(window.location.search).get(
 			MEME_NETWORK_QUERY,
 		);
-		return getMemeNetworkCodeFromQuery(raw);
-	}
-	if (typeof document !== "undefined") {
+		if (fromQuery) return getMemeNetworkCodeFromQuery(fromQuery);
 		return parseMemeNetworkCodeFromCookieHeader(document.cookie);
 	}
 	return normalizeMemeNetworkCode(Cookies.get(MEME_NETWORK_COOKIE));
@@ -169,45 +176,53 @@ export function setClientMemeNetworkCode(code: string | number) {
 }
 
 /**
- * Add `?chain=` for a non-default chain. Default chain does not write the query.
- * Existing `chain` is left untouched.
+ * Prefix path with `/{chainQuery}` (always, including `bsc`).
  */
-export function withMemeNetworkQuery(
+export function withMemeNetworkPath(
 	href: string,
 	code?: string | number,
 ): string {
 	if (!href || /^(mailto:|tel:|sms:|#|https?:|\/\/)/i.test(href)) return href;
+
 	const chain = getPublicChainByCode(code ?? getClientMemeNetworkCode());
-	const defaultChain = getDefaultPublicChain();
-	if (chain.query === defaultChain.query) return href;
+	const chainQuery = isChainPathQuery(chain.query)
+		? chain.query
+		: getDefaultPublicChain().query;
 
 	const hashIndex = href.indexOf("#");
 	const hash = hashIndex >= 0 ? href.slice(hashIndex) : "";
 	const withoutHash = hashIndex >= 0 ? href.slice(0, hashIndex) : href;
 	const qIndex = withoutHash.indexOf("?");
-	const path = qIndex >= 0 ? withoutHash.slice(0, qIndex) : withoutHash;
+	const rawPath = qIndex >= 0 ? withoutHash.slice(0, qIndex) : withoutHash;
 	const search = qIndex >= 0 ? withoutHash.slice(qIndex + 1) : "";
+
+	const routePath = getAppRoutePath(rawPath);
 	const params = new URLSearchParams(search);
-	if (!params.has(MEME_NETWORK_QUERY)) {
-		params.set(MEME_NETWORK_QUERY, chain.query);
-	}
+	params.delete(MEME_NETWORK_QUERY);
 	const query = params.toString();
-	return query ? `${path}?${query}${hash}` : `${path}${hash}`;
+
+	const prefixed =
+		routePath === "/" ? `/${chainQuery}` : `/${chainQuery}${routePath}`;
+
+	return query ? `${prefixed}?${query}${hash}` : `${prefixed}${hash}`;
+}
+
+/** @deprecated Use `withMemeNetworkPath`. */
+export function withMemeNetworkQuery(
+	href: string,
+	code?: string | number,
+): string {
+	return withMemeNetworkPath(href, code);
 }
 
 export function goHomeAndReload(code?: string | number) {
 	const chain = getPublicChainByCode(code ?? getClientMemeNetworkCode());
-	const defaultChain = getDefaultPublicChain();
-	const pathname = window.location.pathname || "/";
-	const segments = pathname.split("/").filter(Boolean);
-	const locale = segments[0] || "en";
-	const homePath = `/${locale}`;
-	const homeUrl =
-		chain.query === defaultChain.query
-			? homePath
-			: `${homePath}?${MEME_NETWORK_QUERY}=${chain.query}`;
+	const chainQuery = isChainPathQuery(chain.query)
+		? chain.query
+		: getDefaultPublicChain().query;
+	const homeUrl = `/${chainQuery}`;
 	const currentUrl = `${window.location.pathname}${window.location.search}`;
-	if (currentUrl === homeUrl) {
+	if (currentUrl === homeUrl || currentUrl === `${homeUrl}/`) {
 		window.location.reload();
 		return;
 	}

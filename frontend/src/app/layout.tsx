@@ -6,8 +6,8 @@ import { AppShell } from "@/components/app-shell";
 import { I18nProvider } from "@/i18n/provider";
 import { fetchSiteConfig, FALLBACK_SITE_CONFIG } from "@/lib/bff";
 import { isDarkThemeRoute, siteStyleVars } from "@/lib/theme";
-import { stripLocalePrefix } from "@/i18n/locale-path";
-import { defaultLocale, isLocale } from "@/i18n/config";
+import { getAppRoutePath } from "@/i18n/locale-path";
+import { defaultLocale, isLocale, type Locale } from "@/i18n/config";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -42,8 +42,8 @@ export default async function RootLayout({
 	}
 	const requestHeaders = await headers();
 	const headerLocale = requestHeaders.get("x-locale") || "";
-	const locale = isLocale(headerLocale) ? headerLocale : defaultLocale;
-	const routePath = stripLocalePrefix(requestHeaders.get("x-pathname") || "/");
+	const locale: Locale = isLocale(headerLocale) ? headerLocale : defaultLocale;
+	const routePath = getAppRoutePath(requestHeaders.get("x-pathname") || "/");
 	const usesDarkTheme = isDarkThemeRoute(routePath);
 
 	return (
@@ -59,7 +59,7 @@ export default async function RootLayout({
 		>
 			<body style={siteStyleVars(config)}>
 				<Providers siteConfig={config}>
-					<I18nProvider>
+					<I18nProvider initialLocale={locale}>
 						<AppShell siteName={config.name} tagline={config.tagline}>
 							{children}
 						</AppShell>

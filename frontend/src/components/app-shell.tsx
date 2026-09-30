@@ -7,7 +7,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type ReactNode, useEffect } from "react";
 import { useI18n } from "@/i18n/provider";
-import { stripLocalePrefix } from "@/i18n/locale-path";
+import { getAppRoutePath } from "@/i18n/locale-path";
 import { isDarkThemeRoute } from "@/lib/theme";
 import { LanguageSwitcher } from "./language-switcher";
 import { NetworkSwitcher } from "./network-switcher";
@@ -23,7 +23,7 @@ export function AppShell({
 	children: ReactNode;
 }) {
 	const pathname = usePathname();
-	const routePath = stripLocalePrefix(pathname);
+	const routePath = getAppRoutePath(pathname);
 	const { href, t } = useI18n();
 	const usesDarkTheme = isDarkThemeRoute(routePath);
 	const nav = [
