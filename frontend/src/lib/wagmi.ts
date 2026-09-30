@@ -1,5 +1,6 @@
 /**
- * Wagmi config: injected + BSC / Robinhood (mainnet or testnet by MODE).
+ * Wagmi config: EIP-6963 multi-injected discovery + BSC / Robinhood.
+ * No WalletConnect projectId — browser extension wallets only.
  */
 "use client";
 
@@ -35,7 +36,10 @@ function transportFor(urls: string[]) {
 
 export const wagmiConfig = createConfig({
 	chains: [bsc, bscTestnet, robinhood, robinhoodTestnet],
+	// Legacy window.ethereum fallback when a wallet does not announce EIP-6963.
+	// Discovered EIP-6963 wallets are added automatically (multiInjectedProviderDiscovery).
 	connectors: [injected({ shimDisconnect: true })],
+	multiInjectedProviderDiscovery: true,
 	transports: {
 		[bsc.id]: transportFor(bscRpcs),
 		[bscTestnet.id]: transportFor(testnetRpcs),
