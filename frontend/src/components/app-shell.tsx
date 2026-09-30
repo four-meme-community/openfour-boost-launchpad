@@ -11,6 +11,7 @@ import { getAppRoutePath } from "@/i18n/locale-path";
 import { isDarkThemeRoute } from "@/lib/theme";
 import { LanguageSwitcher } from "./language-switcher";
 import { NetworkSwitcher } from "./network-switcher";
+import { TokenSearch } from "./token-search";
 import { WalletButton } from "./wallet-button";
 
 export function AppShell({
@@ -68,6 +69,9 @@ export function AppShell({
 							{item.label}
 						</Link>
 					))}
+					<div className="nav-search">
+						<TokenSearch />
+					</div>
 				</nav>
 			</header>
 			<main className="site-main">{children}</main>

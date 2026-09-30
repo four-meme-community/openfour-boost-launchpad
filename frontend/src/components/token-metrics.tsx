@@ -14,7 +14,7 @@ import {
 } from "@/lib/format";
 import { useI18n } from "@/i18n/provider";
 import { isTokenOnDex } from "@/lib/meme-api";
-import { toUsdMarketCap } from "@/lib/quote-usd";
+import { toUsdMarketCap, toUsdPrice } from "@/lib/quote-usd";
 import type {
 	TokenHeaderModel,
 	TokenHeaderTicker,
@@ -76,7 +76,11 @@ export function TokenMetrics({
 	const status = ticker?.status ?? token.status;
 	const onDex = isTokenOnDex(status);
 	const quoteUsd = priceOf(token.symbol);
-	const price = livePrice || ticker?.price;
+	const rawPrice = livePrice || ticker?.price;
+	const price =
+		rawPrice != null && rawPrice !== "" && Number(rawPrice) > 0
+			? toUsdPrice(rawPrice, { onDex, quoteUsd })
+			: undefined;
 	const marketCap = deriveLiveMarketCap(
 		livePrice,
 		ticker?.price,

@@ -20,7 +20,7 @@ import {
 	formatCompact,
 	formatPct,
 } from "@/lib/format";
-import { toUsdMarketCap, toUsdVolume } from "@/lib/quote-usd";
+import { toUsdMarketCap, toUsdPrice, toUsdVolume } from "@/lib/quote-usd";
 import { useQuoteTickerPrices } from "@/hooks/use-quote-ticker-prices";
 import { useI18n } from "@/i18n/provider";
 
@@ -260,6 +260,10 @@ export function TokenList() {
 									onDex,
 									quoteUsd,
 								});
+								const priceUsd = toUsdPrice(t.price, {
+									onDex,
+									quoteUsd,
+								});
 								const volumeUsd = toUsdVolume(volumeForItem(t), {
 									onDex,
 									quoteUsd,
@@ -306,7 +310,7 @@ export function TokenList() {
 											</Link>
 										</td>
 										<td className="mkt-num">
-											<PriceText value={t.price} />
+											<PriceText value={priceUsd} />
 										</td>
 										<td className="mkt-num">
 											<ChangeCell value={changeForPeriod(t, period)} />

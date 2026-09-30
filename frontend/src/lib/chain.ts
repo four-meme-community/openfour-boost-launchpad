@@ -36,6 +36,28 @@ export function getActiveChain() {
 
 export const CHAIN = getActiveChain();
 
+export function getExplorerBase(): string {
+	const url = getActiveChain().blockExplorers?.default?.url;
+	return (url || "https://bscscan.com").replace(/\/$/, "");
+}
+
+export function getExplorerLabel(): string {
+	return getActiveChain().blockExplorers?.default?.name || "Explorer";
+}
+
+export function explorerTokenUrl(address: string): string {
+	return `${getExplorerBase()}/token/${address}`;
+}
+
+export function explorerTxUrl(txHash: string): string {
+	const hash = String(txHash).split("-")[0];
+	return `${getExplorerBase()}/tx/${hash}`;
+}
+
+export function explorerAddressUrl(address: string): string {
+	return `${getExplorerBase()}/address/${address}`;
+}
+
 export const NATIVE_BNB = "0x0000000000000000000000000000000000000000";
 export const NATIVE_ADDRESS = NATIVE_BNB;
 

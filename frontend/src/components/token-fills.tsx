@@ -12,6 +12,7 @@ import {
 	type TokenFill,
 } from "@/lib/meme-api";
 import { useI18n } from "@/i18n/provider";
+import { explorerTxUrl } from "@/lib/chain";
 import {
 	formatAddress,
 	formatAge,
@@ -128,7 +129,7 @@ export function TokenFills({
 						<a
 							key={fillKey(f)}
 							className={`fill-row ${buy ? "buy" : "sell"}`}
-							href={`https://bscscan.com/tx/${String(f.txHash).split("-")[0]}`}
+							href={explorerTxUrl(String(f.txHash))}
 							target="_blank"
 							rel="noreferrer"
 						>

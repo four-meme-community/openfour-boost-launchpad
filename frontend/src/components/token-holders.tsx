@@ -10,6 +10,7 @@ import {
 } from "@/lib/meme-api";
 import { Skeleton } from "@/components/skeleton";
 import { useI18n } from "@/i18n/provider";
+import { getExplorerBase } from "@/lib/chain";
 import { formatAddress, formatCompact } from "@/lib/format";
 
 function holderPct(amount: string | number, total?: string | number | null) {
@@ -158,7 +159,7 @@ export function TokenHolders({
 					item={item}
 					label={label}
 					totalAmount={totalAmount}
-					explorerBase="https://bscscan.com"
+					explorerBase={getExplorerBase()}
 				/>
 			))}
 		</div>

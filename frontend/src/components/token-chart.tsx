@@ -24,6 +24,7 @@ import {
 	type BarTypeEnum,
 } from "@/lib/meme-api";
 import { useI18n } from "@/i18n/provider";
+import { useQuoteTickerPrices } from "@/hooks/use-quote-ticker-prices";
 
 const INTERVALS: { label: string; value: BarTypeEnum }[] = [
 	{ label: "1m", value: "MIN1" },
@@ -146,25 +147,39 @@ function toUnixSec(createDate: string | number): UTCTimestamp {
  * Map upstream bars as-is (same as meme-launcher datafeed).
  * Do not flatten large jumps: DEX USDT conversion often has a legitimate
  * ~10–20× candle at graduation, which meme-launcher shows as the open spike.
+ *
+ * `priceScale` / `volumeScale`: bonding bars are quote-denominated; pass
+ * quote USD (e.g. RETHUSDT) to render USD axis. DEX USDT bars use 1.
  */
-function mapBars(raw: BarCandle[]): {
+function mapBars(
+	raw: BarCandle[],
+	opts?: { priceScale?: number; volumeScale?: number },
+): {
 	candles: CandlePoint[];
 	volumes: VolumePoint[];
 } {
+	const priceScale =
+		Number.isFinite(opts?.priceScale) && (opts?.priceScale as number) > 0
+			? (opts?.priceScale as number)
+			: 1;
+	const volumeScale =
+		Number.isFinite(opts?.volumeScale) && (opts?.volumeScale as number) > 0
+			? (opts?.volumeScale as number)
+			: 1;
 	const byTime = new Map<number, CandlePoint>();
 	const volByTime = new Map<number, VolumePoint>();
 
 	for (const item of raw) {
 		const time = toUnixSec(item.createDate);
 		if (!time) continue;
-		const open = Number(item.open);
-		const high = Number(item.high);
-		const low = Number(item.low);
-		const close = Number(item.close);
+		const open = Number(item.open) * priceScale;
+		const high = Number(item.high) * priceScale;
+		const low = Number(item.low) * priceScale;
+		const close = Number(item.close) * priceScale;
 		if (![open, high, low, close].every(Number.isFinite)) continue;
 
 		byTime.set(time, { time, open, high, low, close });
-		const volume = Number(item.volume ?? item.amount ?? 0);
+		const volume = Number(item.volume ?? item.amount ?? 0) * volumeScale;
 		volByTime.set(time, {
 			time,
 			value: Number.isFinite(volume) ? volume : 0,
@@ -204,6 +219,7 @@ export function TokenChart({
 	onLastPrice?: (price: string | null) => void;
 }) {
 	const { t } = useI18n();
+	const { priceOf } = useQuoteTickerPrices();
 	const hostRef = useRef<HTMLDivElement | null>(null);
 	const chartRef = useRef<IChartApi | null>(null);
 	const candleRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
@@ -211,6 +227,10 @@ export function TokenChart({
 	const lastBarTimeRef = useRef<number>(0);
 	const onLastPriceRef = useRef(onLastPrice);
 	onLastPriceRef.current = onLastPrice;
+	/** Bonding OHLC/volume are quote-native; scale to USD. DEX USDT bars stay 1. */
+	const usdScale = onDex ? 1 : priceOf(raisedSymbol);
+	const usdScaleRef = useRef(usdScale);
+	usdScaleRef.current = usdScale;
 
 	const [barInterval, setBarInterval] = useState<BarTypeEnum>("MIN5");
 	const [loading, setLoading] = useState(true);
@@ -335,7 +355,10 @@ export function TokenChart({
 					startDate: onDex ? undefined : 1,
 				});
 				if (cancelled) return;
-				const { candles, volumes } = mapBars(raw);
+				const { candles, volumes } = mapBars(raw, {
+					priceScale: usdScale,
+					volumeScale: usdScale,
+				});
 				const fmt = priceFormatFromValues(
 					candles.flatMap((c) => [c.open, c.high, c.low, c.close]),
 				);
@@ -345,9 +368,14 @@ export function TokenChart({
 				setEmpty(candles.length === 0);
 				const last = candles.at(-1);
 				lastBarTimeRef.current = last?.time ?? 0;
-				const closeText =
-					last?.close != null && Number.isFinite(last.close)
-						? String(last.close)
+				// Emit quote-native close so header MC/price conversion stays single-pass.
+				const lastRaw = raw.length
+					? Number(raw[raw.length - 1]?.close)
+					: Number.NaN;
+				const closeText = Number.isFinite(lastRaw)
+					? String(lastRaw)
+					: last?.close != null && Number.isFinite(last.close)
+						? String(last.close / (usdScale || 1))
 						: null;
 				onLastPriceRef.current?.(closeText);
 				if (chartRef.current) {
@@ -390,17 +418,18 @@ export function TokenChart({
 							const volume = Number(bar.volume ?? 0);
 							if (![open, high, low, close].every(Number.isFinite)) return;
 
+							const scale = usdScaleRef.current || 1;
 							lastBarTimeRef.current = time;
 							candleRef.current?.update({
 								time,
-								open,
-								high,
-								low,
-								close,
+								open: open * scale,
+								high: high * scale,
+								low: low * scale,
+								close: close * scale,
 							});
 							volumeRef.current?.update({
 								time,
-								value: Number.isFinite(volume) ? volume : 0,
+								value: Number.isFinite(volume) ? volume * scale : 0,
 								color:
 									close >= open
 										? "rgba(108, 255, 50, 0.35)"
@@ -430,7 +459,7 @@ export function TokenChart({
 			cancelled = true;
 			unsubscribeStream?.();
 		};
-	}, [tokenId, barInterval, onDex, expectedCategory, quoteMode, t]);
+	}, [tokenId, barInterval, onDex, expectedCategory, quoteMode, usdScale, t]);
 
 	return (
 		<section className="token-chart">

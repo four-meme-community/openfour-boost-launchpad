@@ -44,3 +44,17 @@ export function toUsdVolume(
 ): number {
 	return toUsdMarketCap(volume, opts);
 }
+
+/**
+ * Bonding unit price is quote-denominated (RETH/BNB); convert to USD for `$` UI.
+ * DEX ticker/chart closes in USDT mode are already USD.
+ */
+export function toUsdPrice(
+	price?: string | number | null,
+	opts?: {
+		onDex?: boolean;
+		quoteUsd?: number | null;
+	},
+): number {
+	return toUsdMarketCap(price, opts);
+}

@@ -45,7 +45,10 @@ export function LanguageSwitcher() {
 				aria-controls={menuId}
 				onClick={() => setOpen((value) => !value)}
 			>
-				<span>{t(`language.${locale}`)}</span>
+				<span className="language-label-full">{t(`language.${locale}`)}</span>
+				<span className="language-label-short">
+					{locale === "zh-TW" ? "繁中" : locale.toUpperCase()}
+				</span>
 				<svg width="10" height="6" viewBox="0 0 10 6" aria-hidden>
 					<path
 						d="M1 1l4 4 4-4"

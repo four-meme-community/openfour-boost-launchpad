@@ -10,6 +10,7 @@ import { CopyIcon } from "@/components/copy-icon";
 import { useI18n } from "@/i18n/provider";
 import { TokenMetrics } from "@/components/token-metrics";
 import { useTokenTradeFlags } from "@/hooks/use-token-trade-flags";
+import { explorerTokenUrl, getExplorerLabel } from "@/lib/chain";
 import { formatAddress, formatAge } from "@/lib/format";
 import { imageUrl } from "@/lib/meme-api";
 
@@ -71,7 +72,7 @@ export function tokenPairLabel(token: {
 }
 
 function explorerUrl(address: string) {
-	return `https://bscscan.com/token/${address}`;
+	return explorerTokenUrl(address);
 }
 
 export function TokenHeader({
@@ -88,6 +89,7 @@ export function TokenHeader({
 	const flags = useTokenTradeFlags(token.address);
 	const hasTax = flags.feeRateBuy > 0 || flags.feeRateSell > 0;
 	const pair = tokenPairLabel(token);
+	const explorerLabel = getExplorerLabel();
 
 	const copyText = async (value: string, kind: "token") => {
 		try {
@@ -131,7 +133,7 @@ export function TokenHeader({
 						</div>
 					</div>
 
-					<div className="token-meta-row">
+					<div className="token-toolbar">
 						<span className="token-age">{formatAge(token.createDate)}</span>
 						<button
 							type="button"
@@ -143,28 +145,41 @@ export function TokenHeader({
 							{formatAddress(token.address, 4)}
 							<CopyIcon />
 						</button>
-					</div>
-
-					<div className="token-links">
 						<a
 							href={explorerUrl(token.address)}
 							target="_blank"
 							rel="noreferrer"
+							className="token-toolbar-link"
 						>
-							BscScan
+							{explorerLabel}
 						</a>
 						{token.twitterUrl ? (
-							<a href={token.twitterUrl} target="_blank" rel="noreferrer">
+							<a
+								href={token.twitterUrl}
+								target="_blank"
+								rel="noreferrer"
+								className="token-toolbar-link"
+							>
 								X
 							</a>
 						) : null}
 						{token.telegramUrl ? (
-							<a href={token.telegramUrl} target="_blank" rel="noreferrer">
+							<a
+								href={token.telegramUrl}
+								target="_blank"
+								rel="noreferrer"
+								className="token-toolbar-link"
+							>
 								Telegram
 							</a>
 						) : null}
 						{token.webUrl ? (
-							<a href={token.webUrl} target="_blank" rel="noreferrer">
+							<a
+								href={token.webUrl}
+								target="_blank"
+								rel="noreferrer"
+								className="token-toolbar-link"
+							>
 								Web
 							</a>
 						) : null}

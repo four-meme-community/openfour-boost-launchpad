@@ -16,7 +16,7 @@ import {
 	type TokenListItem,
 } from "@/lib/meme-api";
 import { formatCompact, formatPct } from "@/lib/format";
-import { toUsdMarketCap } from "@/lib/quote-usd";
+import { toUsdMarketCap, toUsdPrice } from "@/lib/quote-usd";
 import { useQuoteTickerPrices } from "@/hooks/use-quote-ticker-prices";
 import { useI18n } from "@/i18n/provider";
 
@@ -164,6 +164,10 @@ export function TokenSideList({
 						onDex: isTokenOnDex(item.status),
 						quoteUsd: priceOf(item.symbol),
 					});
+					const priceUsd = toUsdPrice(item.price, {
+						onDex: isTokenOnDex(item.status),
+						quoteUsd: priceOf(item.symbol),
+					});
 					return (
 						<Link
 							key={item.tokenAddress || item.tokenId}
@@ -186,7 +190,7 @@ export function TokenSideList({
 							</div>
 							<div className="token-side-quote">
 								<strong>
-									<PriceText value={item.price} />
+									<PriceText value={priceUsd} />
 								</strong>
 								<FlashValue
 									value={chg}

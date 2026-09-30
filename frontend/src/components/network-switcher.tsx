@@ -31,13 +31,29 @@ function BnbIcon({ size = 14 }: { size?: number }) {
 	);
 }
 
-function RobinhoodIcon({ size = 14 }: { size?: number }) {
+function RobinhoodIcon({ size = 16 }: { size?: number }) {
 	return (
-		<svg width={size} height={size} viewBox="0 0 24 24" aria-hidden>
-			<title>Robinhood Chain</title>
-			<path d="M12 1.8L21.2 7.1V16.9L12 22.2L2.8 16.9V7.1L12 1.8Z" fill="#CCFF00" />
-			<path d="M12 5.4L17.4 8.5V14.7L12 17.8L6.6 14.7V8.5L12 5.4Z" fill="#0A0A0A" />
-			<path d="M12 8.2L14.8 9.8V13.1L12 14.7L9.2 13.1V9.8L12 8.2Z" fill="#CCFF00" />
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width={size}
+			height={size}
+			fill="none"
+			viewBox="0 0 16 16"
+			aria-hidden
+		>
+			<title>Robinhood</title>
+			<path
+				fill="#cf0"
+				d="M9.6097 3.882c.0998.0004.1302.0606.06.1407-1.7055 1.8861-4.4248 5.0361-6.923 11.3967-.02.05-.0805.0806-.1405.0806H2.275c-.0701-.0001-.1006-.0434-.0806-.1216.331-1.2238.7834-2.5785 1.4957-4.5748V8.035c0-.5316.0803-.9025.4013-1.3037l2.1871-2.7086c.0773-.0963.1709-.1406.2813-.1406z"
+			/>
+			<path
+				fill="#cf0"
+				d="M10.2103 4.6468c.0701-.0801.1404-.04.1406.06v3.8336c0 .0501-.0095.1202-.0395.1802l-1.3946 2.2969c-.1704.2807-.3694.4234-.7222.5317l-3.1304.9639c-.0903.0301-.1392-.0371-.101-.1113 1.5148-2.9595 3.1504-5.4175 5.2471-7.755"
+			/>
+			<path
+				fill="#cf0"
+				d="M9.699.7634c.9836-.381 3.1103-.361 3.5817.1406.5314.562.6008 1.9167.4805 2.7994-.0903.6016-.1906.7319-.5215 1.163l-2.0362 2.6588c-.0601.0902-.1405.0606-.1406-.0395v-3.813c-.0002-.3109-.1813-.4908-.4922-.4908h-3.381c-.0997-.0003-.1297-.0707-.06-.1407.5718-.6019 1.1743-1.2139 2.0772-1.9863.0903-.0773.2875-.2123.4922-.2915"
+			/>
 		</svg>
 	);
 }
@@ -55,10 +71,8 @@ function NetworkIcon({
 	return <BnbIcon size={size} />;
 }
 
-function shortNetworkLabel(label: string, max = 4) {
-	const first = label.trim().split(/\s+/)[0] || label.trim();
-	if (first.length <= max) return first;
-	return first.slice(0, max);
+function shortNetworkLabel(label: string) {
+	return label.trim().split(/\s+/)[0] || label.trim();
 }
 
 export function NetworkSwitcher() {
@@ -144,7 +158,12 @@ export function NetworkSwitcher() {
 				onClick={() => setOpen((value) => !value)}
 			>
 				<NetworkIcon networkId={current.id} />
-				<span>{shortNetworkLabel(current.label)}</span>
+				<span className="network-label-full">
+					{shortNetworkLabel(current.label)}
+				</span>
+				<span className="network-label-short">
+					{current.id === MEME_NETWORK_ID.ROBINHOOD ? "RH" : "BSC"}
+				</span>
 				<svg width="10" height="6" viewBox="0 0 10 6" aria-hidden>
 					<path
 						d="M1 1l4 4 4-4"

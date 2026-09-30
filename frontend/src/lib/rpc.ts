@@ -62,7 +62,7 @@ const MULTICALL3 = "0xcA11bde05977b3631167028862bE2a173976CA11";
 
 export const robinhood = defineChain({
 	id: 4663,
-	name: "Robinhood Chain",
+	name: "Robinhood",
 	nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
 	rpcUrls: {
 		default: { http: [...ROBINHOOD_RPC_URLS] },
@@ -80,7 +80,7 @@ export const robinhood = defineChain({
 
 export const robinhoodTestnet = defineChain({
 	id: 46630,
-	name: "Robinhood Chain Testnet",
+	name: "Robinhood Testnet",
 	nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
 	rpcUrls: {
 		default: { http: [...ROBINHOOD_TESTNET_RPC_URLS] },
