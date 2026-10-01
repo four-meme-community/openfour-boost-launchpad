@@ -169,12 +169,14 @@ export async function readClaimableFees(
 	account: Address,
 ): Promise<(bigint | null)[]> {
 	if (tokenAddresses.length === 0) return [];
+	const chainId = getActiveChain().id;
 	const results = await readContracts(wagmiConfig, {
 		contracts: tokenAddresses.map((token) => ({
 			address: token,
 			abi: CLAIMABLE_FEE_ABI,
 			functionName: "claimableFee" as const,
 			args: [account] as const,
+			chainId,
 		})),
 		allowFailure: true,
 	});

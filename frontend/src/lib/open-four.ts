@@ -278,6 +278,7 @@ export async function createOpenFourToken(input: CreateInput) {
 		address: contracts.OpenFourCore,
 		abi: openFourCoreAbi,
 		functionName: "wrappedNative",
+		chainId: getActiveChain().id,
 	})) as Address;
 	const quoteAsset = decoded.quoteAsset;
 	const presaleUsesNative =
@@ -389,6 +390,7 @@ export async function isCreateQuoteNativePayment(
 			address: contracts.OpenFourCore,
 			abi: openFourCoreAbi,
 			functionName: "wrappedNative",
+			chainId: getActiveChain().id,
 		})) as Address;
 		return (
 			quoteAddress.toLowerCase() === String(wrappedNative).toLowerCase()
@@ -417,6 +419,7 @@ export async function estimateBuyByBudget(params: {
 		abi: openFourToolsAbi,
 		functionName: "estimateBuyByBudget",
 		args: [params.token, params.user, value, params.options, "0x"],
+		chainId: getActiveChain().id,
 	});
 	return result as {
 		curveQuote: bigint;
@@ -523,6 +526,7 @@ export async function estimateSell(params: {
 		abi: openFourToolsAbi,
 		functionName: "estimateSell",
 		args: [params.token, params.user, params.amount, params.options, "0x"],
+		chainId: getActiveChain().id,
 	});
 	return result as {
 		curveQuote: bigint;
@@ -539,11 +543,13 @@ async function ensureAllowance(params: {
 	spender: Address;
 	amount: bigint;
 }) {
+	const chainId = getActiveChain().id;
 	const allowance = await readContract(wagmiConfig, {
 		address: params.token,
 		abi: erc20Abi,
 		functionName: "allowance",
 		args: [params.owner, params.spender],
+		chainId,
 	});
 	if (allowance >= params.amount) return;
 
@@ -552,6 +558,7 @@ async function ensureAllowance(params: {
 		abi: erc20Abi,
 		address: params.token,
 		functionName: "approve",
+		chainId,
 		args: [params.spender, params.amount],
 	});
 	const hash = await writeContract(wagmiConfig, request);

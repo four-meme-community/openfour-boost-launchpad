@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { isAddress, type Address } from "viem";
 import { readContract } from "wagmi/actions";
 import openFourCoreAbi from "@/abi/open-four-core.json";
+import { getActiveChain } from "@/lib/chain";
 import { loadContracts } from "@/lib/open-four";
 import { readTokenTaxBps } from "@/lib/zap-trade";
 import { wagmiConfig } from "@/lib/wagmi";
@@ -64,6 +65,7 @@ export function useTokenTradeFlags(
 						abi: openFourCoreAbi,
 						functionName: "tokens",
 						args: [tokenAddress as Address],
+						chainId: getActiveChain().id,
 					});
 					const tuple = row as readonly unknown[];
 					antiSniperEnabled = Boolean(tuple?.[19]);

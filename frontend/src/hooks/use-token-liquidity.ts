@@ -15,6 +15,7 @@ import {
 } from "viem";
 import { readContract } from "wagmi/actions";
 import openFourToolsAbi from "@/abi/open-four-tools.json";
+import { getActiveChain } from "@/lib/chain";
 import { loadContracts } from "@/lib/open-four";
 import { fetchQuoteTickerPrice } from "@/lib/meme-api";
 import { wagmiConfig } from "@/lib/wagmi";
@@ -59,11 +60,13 @@ async function readInternalLiquidity(
 	quoteUsd: number,
 ): Promise<number> {
 	const contracts = await loadContracts();
+	const chainId = getActiveChain().id;
 	const snapshot = (await readContract(wagmiConfig, {
 		address: contracts.OpenFourTools,
 		abi: openFourToolsAbi,
 		functionName: "getCurveLiquiditySnapshot",
 		args: [tokenAddress],
+		chainId,
 	})) as {
 		available?: boolean;
 		currentQuoteLiquidity?: bigint;
@@ -102,6 +105,7 @@ async function readExternalLiquidity(
 	let tokenReserve = 0;
 	let quoteReserve = 0;
 
+	const chainId = getActiveChain().id;
 	if (Number(params.pancakeVersion) === 3) {
 		const [tokenRaw, quoteRaw] = await Promise.all([
 			readContract(wagmiConfig, {
@@ -109,12 +113,14 @@ async function readExternalLiquidity(
 				abi: erc20Abi,
 				functionName: "balanceOf",
 				args: [pair],
+				chainId,
 			}),
 			readContract(wagmiConfig, {
 				address: quote,
 				abi: erc20Abi,
 				functionName: "balanceOf",
 				args: [pair],
+				chainId,
 			}),
 		]);
 		tokenReserve = Number(formatUnits(tokenRaw, tokenDecimals));
@@ -125,11 +131,13 @@ async function readExternalLiquidity(
 				address: pair,
 				abi: V2_PAIR_ABI,
 				functionName: "getReserves",
+				chainId,
 			}),
 			readContract(wagmiConfig, {
 				address: pair,
 				abi: V2_PAIR_ABI,
 				functionName: "token0",
+				chainId,
 			}),
 		]);
 		const tokenIs0 = token0.toLowerCase() === token.toLowerCase();

@@ -3,6 +3,7 @@
  */
 import { readContract } from "wagmi/actions";
 import { isAddress, zeroAddress, type Address, type Hex } from "viem";
+import { getActiveChain } from "./chain";
 import { wagmiConfig } from "./wagmi";
 import { WBNB } from "./dex-v2";
 import { TAG_DESCRIPTOR_ABI } from "./token-descriptor";
@@ -183,16 +184,19 @@ export async function readMigrateModuleTag(
 	tokenAddress: Address,
 ): Promise<string> {
 	try {
+		const chainId = getActiveChain().id;
 		const migrateModule = (await readContract(wagmiConfig, {
 			address: tokenAddress,
 			abi: TOKEN_MIGRATE_MODULE_ABI,
 			functionName: "migrateModule",
+			chainId,
 		})) as Address;
 		if (!isAddress(migrateModule) || migrateModule === zeroAddress) return "";
 		const [, tag] = (await readContract(wagmiConfig, {
 			address: migrateModule,
 			abi: TAG_DESCRIPTOR_ABI,
 			functionName: "descriptor",
+			chainId,
 		})) as [Hex, string, string];
 		return tag || "";
 	} catch {

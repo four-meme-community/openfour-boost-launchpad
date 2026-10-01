@@ -21,7 +21,7 @@ import { CopyAddress } from "@/components/copy-address";
 import { DividendsPanel } from "@/components/dividends-panel";
 import { TokenTaxSkeleton } from "@/components/token-tax-skeleton";
 import { imageUrl, memeGet, type TokenDetail } from "@/lib/meme-api";
-import { toMemeApiNetworkCode } from "@/lib/chain";
+import { getActiveChain, toMemeApiNetworkCode } from "@/lib/chain";
 import { loadTemplateConfig } from "@/lib/open-four";
 import { wagmiConfig } from "@/lib/wagmi";
 import { fetchTaxConfig, type TokenTaxConfig } from "@/lib/tax-api";
@@ -226,6 +226,7 @@ export default function TokenTaxPage() {
 					address: address as Address,
 					abi: erc20Abi,
 					functionName: "symbol",
+					chainId: getActiveChain().id,
 				})
 					.then((tokenSymbol) => {
 						if (cancelled || !tokenSymbol) return;

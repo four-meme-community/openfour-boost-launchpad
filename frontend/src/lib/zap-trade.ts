@@ -18,6 +18,7 @@ import {
 	type Address,
 	type Hex,
 } from "viem";
+import { getActiveChain } from "./chain";
 import { publicEnv } from "./env";
 import { wagmiConfig } from "./wagmi";
 import { ZAP_DEX_TYPE, type ZapRoute } from "./zap-route";
@@ -206,6 +207,7 @@ export async function resolveZapRouterAddress(
 			address: coreAddress,
 			abi: OPEN_FOUR_CORE_ZAP_ABI,
 			functionName: "zapRouter",
+			chainId: getActiveChain().id,
 		})) as Address;
 		if (!isAddress(router) || router === zeroAddress) return null;
 		zapDebug("router:resolved", { coreAddress, router });
@@ -221,17 +223,20 @@ export async function readTokenTaxBps(tokenAddress: Address): Promise<{
 	sell: number;
 }> {
 	try {
+		const chainId = getActiveChain().id;
 		const results = await readContracts(wagmiConfig, {
 			contracts: [
 				{
 					address: tokenAddress,
 					abi: [TAX_RATE_ABI[0]],
 					functionName: "buyFeeRate",
+					chainId,
 				},
 				{
 					address: tokenAddress,
 					abi: [TAX_RATE_ABI[1]],
 					functionName: "sellFeeRate",
+					chainId,
 				},
 			],
 			allowFailure: true,
@@ -343,11 +348,13 @@ async function ensureAllowance(params: {
 	spender: Address;
 	amount: bigint;
 }) {
+	const chainId = getActiveChain().id;
 	const allowance = await readContract(wagmiConfig, {
 		address: params.token,
 		abi: erc20Abi,
 		functionName: "allowance",
 		args: [params.owner, params.spender],
+		chainId,
 	});
 	if (allowance >= params.amount) return;
 	const { request } = await simulateContract(wagmiConfig, {

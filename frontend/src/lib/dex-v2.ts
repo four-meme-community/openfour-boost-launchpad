@@ -11,6 +11,7 @@ import {
 	writeContract,
 } from "wagmi/actions";
 import { erc20Abi, type Address, type Hex } from "viem";
+import { getActiveChain } from "./chain";
 import { publicEnv } from "./env";
 import { wagmiConfig } from "./wagmi";
 import { writeWithGas, type TxGasOverrides } from "./tx-gas";
@@ -97,6 +98,7 @@ async function tryAmountsOut(amountIn: bigint, path: Address[]) {
 			abi: routerAbi,
 			functionName: "getAmountsOut",
 			args: [amountIn, path],
+			chainId: getActiveChain().id,
 		})) as bigint[];
 		return amounts[amounts.length - 1] ?? 0n;
 	} catch {
@@ -152,11 +154,13 @@ async function ensureAllowance(params: {
 	spender: Address;
 	amount: bigint;
 }) {
+	const chainId = getActiveChain().id;
 	const allowance = await readContract(wagmiConfig, {
 		address: params.token,
 		abi: erc20Abi,
 		functionName: "allowance",
 		args: [params.owner, params.spender],
+		chainId,
 	});
 	if (allowance >= params.amount) return;
 	const { request } = await simulateContract(wagmiConfig, {

@@ -24,6 +24,7 @@
 
 import { readContracts } from "wagmi/actions";
 import type { Address } from "viem";
+import { getActiveChain } from "./chain";
 import { readTokenDescriptor } from "./token-descriptor";
 import type { TokenTaxConfig } from "./tax-api";
 import { wagmiConfig } from "./wagmi";
@@ -147,11 +148,13 @@ export async function readOnchainTaxInfo(
 	if (!descriptor) return { kind: "unknown" };
 
 	if (descriptor.tag === "token.tax" || descriptor.tag === "token.tax.stock") {
+		const chainId = getActiveChain().id;
 		const results = await readContracts(wagmiConfig, {
 			contracts: TAX_TOKEN_ABI.map((item) => ({
 				address: tokenAddress,
 				abi: [item],
 				functionName: item.name,
+				chainId,
 			})),
 			allowFailure: true,
 		});
@@ -191,11 +194,13 @@ export async function readOnchainTaxInfo(
 	}
 
 	if (descriptor.tag === "token.strategy_tax") {
+		const chainId = getActiveChain().id;
 		const results = await readContracts(wagmiConfig, {
 			contracts: STRATEGY_TOKEN_ABI.map((item) => ({
 				address: tokenAddress,
 				abi: [item],
 				functionName: item.name,
+				chainId,
 			})),
 			allowFailure: true,
 		});
@@ -210,6 +215,7 @@ export async function readOnchainTaxInfo(
 					address: strategyAddress as Address,
 					abi: [item],
 					functionName: item.name,
+					chainId,
 				})),
 				allowFailure: true,
 			});
@@ -238,14 +244,21 @@ export async function readOnchainTaxInfo(
 	}
 
 	if (descriptor.tag === "token.creator_rewards") {
+		const chainId = getActiveChain().id;
 		const results = await readContracts(wagmiConfig, {
 			contracts: [
-				{ address: tokenAddress, abi: [CREATOR_REWARDS_ABI[0]], functionName: "creator" },
+				{
+					address: tokenAddress,
+					abi: [CREATOR_REWARDS_ABI[0]],
+					functionName: "creator",
+					chainId,
+				},
 				{
 					address: tokenAddress,
 					abi: [CREATOR_REWARDS_ABI[1]],
 					functionName: "resolveFeeRate",
 					args: [tokenAddress],
+					chainId,
 				},
 			],
 			allowFailure: true,
@@ -277,6 +290,7 @@ export async function readOnchainClaimable(
 	info: OnchainTaxInfo,
 	account: Address,
 ): Promise<bigint | null> {
+	const chainId = getActiveChain().id;
 	if (info.kind === "tax") {
 		try {
 			const [result] = await readContracts(wagmiConfig, {
@@ -286,6 +300,7 @@ export async function readOnchainClaimable(
 						abi: CLAIMABLE_FEE_ABI,
 						functionName: "claimableFee",
 						args: [account],
+						chainId,
 					},
 				],
 				allowFailure: true,
@@ -304,6 +319,7 @@ export async function readOnchainClaimable(
 						abi: STOCK_DIVIDEND_STRATEGY_ABI.slice(4),
 						functionName: "stockClaimable",
 						args: [account],
+						chainId,
 					},
 				],
 				allowFailure: true,
@@ -327,6 +343,7 @@ export async function readOnchainClaimedTotal(
 ): Promise<bigint | null> {
 	if (info.kind !== "tax") return null;
 	try {
+		const chainId = getActiveChain().id;
 		const [result] = await readContracts(wagmiConfig, {
 			contracts: [
 				{
@@ -334,6 +351,7 @@ export async function readOnchainClaimedTotal(
 					abi: CLAIMED_FEE_ABI,
 					functionName: "claimedFee",
 					args: [account],
+					chainId,
 				},
 			],
 			allowFailure: true,

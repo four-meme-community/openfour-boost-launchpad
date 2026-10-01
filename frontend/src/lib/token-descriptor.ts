@@ -21,6 +21,7 @@
  */
 import { readContract } from "wagmi/actions";
 import type { Address } from "viem";
+import { getActiveChain } from "./chain";
 import { wagmiConfig } from "./wagmi";
 
 export const TAG_DESCRIPTOR_ABI = [
@@ -51,6 +52,7 @@ export async function readTokenDescriptor(
 			address,
 			abi: TAG_DESCRIPTOR_ABI,
 			functionName: "descriptor",
+			chainId: getActiveChain().id,
 		});
 		return { tag, version };
 	} catch {

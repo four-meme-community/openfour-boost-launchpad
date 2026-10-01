@@ -16,7 +16,7 @@ import {
 } from "@/components/token-header";
 import { TokenDetailSkeleton } from "@/components/token-detail-skeleton";
 import { TradeDocker } from "@/components/trade-docker";
-import { toMemeApiNetworkCode } from "@/lib/chain";
+import { getActiveChain, toMemeApiNetworkCode } from "@/lib/chain";
 import { getPublicChainByCode } from "@/lib/chain-config";
 import { publicEnv } from "@/lib/env";
 import {
@@ -201,16 +201,19 @@ export default function TokenPage() {
 				}
 
 				setToken(nextToken);
+				const chainId = getActiveChain().id;
 				void Promise.all([
 					readContract(wagmiConfig, {
 						address: nextToken.address as Address,
 						abi: erc20Abi,
 						functionName: "symbol",
+						chainId,
 					}),
 					readContract(wagmiConfig, {
 						address: nextToken.address as Address,
 						abi: erc20Abi,
 						functionName: "decimals",
+						chainId,
 					}),
 				])
 					.then(([tokenSymbol, decimals]) => {
