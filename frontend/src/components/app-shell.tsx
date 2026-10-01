@@ -11,6 +11,7 @@ import { getAppRoutePath } from "@/i18n/locale-path";
 import { isDarkThemeRoute } from "@/lib/theme";
 import { LanguageSwitcher } from "./language-switcher";
 import { NetworkSwitcher } from "./network-switcher";
+import { SiteFooter } from "./site-footer";
 import { TokenSearch } from "./token-search";
 import { WalletButton } from "./wallet-button";
 
@@ -75,6 +76,7 @@ export function AppShell({
 				</nav>
 			</header>
 			<main className="site-main">{children}</main>
+			<SiteFooter />
 		</>
 	);
 }

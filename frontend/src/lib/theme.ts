@@ -22,6 +22,8 @@ export function isDarkThemeRoute(routePath: string): boolean {
 		routePath.startsWith("/token") ||
 		routePath.startsWith("/create") ||
 		routePath.startsWith("/referral") ||
-		routePath.startsWith("/dividends")
+		routePath.startsWith("/dividends") ||
+		routePath.startsWith("/privacy") ||
+		routePath.startsWith("/terms")
 	);
 }

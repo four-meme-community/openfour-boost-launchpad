@@ -16,6 +16,64 @@ const en = {
 	"common.copy": "Copy",
 	"common.copied": "Copied",
 	"common.close": "Close",
+	"footer.legal": "Legal",
+	"footer.privacy": "Privacy Policy",
+	"footer.terms": "Terms of Use",
+	"footer.riskTitle": "Risk notice",
+	"footer.riskBody":
+		"Transactions are submitted through your wallet and may be irreversible. Tokens can be volatile or lose all value. {siteName} does not provide custody, warranties, or financial advice.",
+	"legal.privacy.intro":
+		"How {siteName} handles information when you browse, connect a wallet, launch or trade tokens, or otherwise use this interface.",
+	"legal.privacy.aboutTitle": "About this policy",
+	"legal.privacy.aboutBody":
+		"{siteName} is a non-custodial front-end. We do not control your wallet, hold private keys, or move assets for you. This policy describes limited information that may be processed to operate the interface.",
+	"legal.privacy.collectTitle": "Information we may collect",
+	"legal.privacy.collectBody":
+		"Depending on how you use the site, this may include public wallet addresses and signatures, transaction hashes and other public on-chain activity, content you submit (such as token name, image, or description), device and browser metadata, IP-related technical logs, and basic usage analytics. We never ask for seed phrases or private keys.",
+	"legal.privacy.useTitle": "How we use information",
+	"legal.privacy.useBody":
+		"Information is used to provide core features, keep the service reliable and secure, respond to abuse or support issues, and meet legal obligations. We do not sell personal information for advertising.",
+	"legal.privacy.chainTitle": "Blockchain records",
+	"legal.privacy.chainBody":
+		"Public chains are transparent. Wallet activity, token launches, and trades may remain visible forever through explorers, nodes, and indexers. Disconnecting a wallet or deleting local data does not erase on-chain history.",
+	"legal.privacy.thirdTitle": "Third parties",
+	"legal.privacy.thirdBody":
+		"Requests you make may pass through wallets, RPCs, hosting, indexers, image hosts, or analytics providers. Those services process data under their own terms. Linked protocols and contracts are independent of {siteName}.",
+	"legal.privacy.rightsTitle": "Your choices",
+	"legal.privacy.rightsBody":
+		"You can browse without connecting a wallet where the UI allows it, disconnect anytime, and clear browser storage. Where applicable law grants access, correction, or deletion rights for off-chain records, contact the operator of this deployment. On-chain data cannot be altered by us.",
+	"legal.privacy.contactTitle": "Contact",
+	"legal.privacy.contactBody":
+		"Privacy questions about {siteName} should go to the site operator through the contact channel published for this deployment.",
+	"legal.terms.intro":
+		"Conditions and risks that apply when you access or use the {siteName} interface.",
+	"legal.terms.agreeTitle": "Agreement",
+	"legal.terms.agreeBody":
+		"By using {siteName}, connecting a wallet, or submitting a transaction through the interface, you accept these Terms and the Privacy Policy. If you disagree, do not use the service. You must be old enough and legally able to enter this agreement where you live, and your use must be lawful.",
+	"legal.terms.serviceTitle": "Non-custodial interface",
+	"legal.terms.serviceBody":
+		"{siteName} provides software to interact with public smart contracts. We are not a bank, broker, exchange, custodian, or investment adviser. We do not hold assets, control wallets, guarantee settlement, or reverse blockchain transactions.",
+	"legal.terms.walletTitle": "Wallets and security",
+	"legal.terms.walletBody":
+		"You are responsible for your wallet, devices, and keys. We will never ask for a recovery phrase. Review every approval and transaction before signing. Activity authorized through your wallet is your responsibility, including access from a compromised device.",
+	"legal.terms.txTitle": "Transactions",
+	"legal.terms.txBody":
+		"Prices, quotes, balances, and simulations shown in the UI are estimates and may be delayed or wrong. Transactions can fail, stall, or execute at unexpected prices due to network conditions, liquidity, or contract behavior. Inclusion and timing on-chain are not guaranteed.",
+	"legal.terms.contentTitle": "Tokens and content",
+	"legal.terms.contentBody":
+		"You are responsible for tokens you create or promote and for content you submit. Listing or ranking on the interface is not an endorsement. We may hide or remove off-chain content we control for legal, security, or abuse reasons, but we cannot delete public blockchain records.",
+	"legal.terms.riskTitle": "Risks",
+	"legal.terms.riskBody":
+		"Tokens can be volatile, illiquid, unaudited, malicious, or worthless. Smart contracts, wallets, RPCs, and other infrastructure can fail. You may lose some or all value. Do your own research and only use assets you can afford to lose. Nothing on {siteName} is an offer or solicitation to buy or sell any token.",
+	"legal.terms.useTitle": "Acceptable use",
+	"legal.terms.useBody":
+		"Do not use the interface for unlawful activity, fraud, sanctions evasion, market manipulation, malware, abusive scraping, or to mislead others. Do not interfere with the service or exploit vulnerabilities. We may restrict access where reasonably needed for legal, security, or operational reasons.",
+	"legal.terms.noAdviceTitle": "No warranties; limited liability",
+	"legal.terms.noAdviceBody":
+		"{siteName} is provided as-is without warranties of uptime, accuracy, or fitness for a purpose. To the fullest extent permitted by law, we are not liable for losses from trading, failed transactions, third-party services, or content created by others. You are responsible for your own taxes and compliance.",
+	"legal.terms.contactTitle": "Changes and contact",
+	"legal.terms.contactBody":
+		"These Terms may be updated as the product or law changes. Continued use after an update means you accept the revised Terms. Questions about {siteName} should be sent through the contact channel published by the site operator.",
 	"error.load": "Unable to load data. Please try again.",
 	"error.chart": "Unable to load chart data.",
 	"error.invalidAddress": "Invalid token address.",
@@ -337,6 +395,63 @@ const zhTW: Dictionary = {
 	"common.copy": "複製",
 	"common.copied": "已複製",
 	"common.close": "關閉",
+	"footer.legal": "法律資訊",
+	"footer.privacy": "隱私權政策",
+	"footer.terms": "使用條款",
+	"footer.riskTitle": "風險提示",
+	"footer.riskBody":
+		"交易經由你的錢包提交，且可能無法撤銷。代幣價格可能劇烈波動，甚至歸零。{siteName} 不提供資產託管、保證或財務建議。",
+	"legal.privacy.intro":
+		"說明你在瀏覽、連接錢包、創建或交易代幣，或以其他方式使用 {siteName} 介面時，資訊如何被處理。",
+	"legal.privacy.aboutTitle": "關於本政策",
+	"legal.privacy.aboutBody":
+		"{siteName} 是非託管前端。我們不控制你的錢包、保管私鑰，也不代你轉移資產。本政策說明為營運介面可能處理的有限資訊。",
+	"legal.privacy.collectTitle": "我們可能收集的資訊",
+	"legal.privacy.collectBody":
+		"依使用方式，可能包括公開錢包地址與簽名、交易雜湊及其他公開鏈上活動、你提交的內容（如代幣名稱、圖片、描述）、裝置與瀏覽器資訊、與 IP 相關的技術日誌，以及基本使用分析。我們絕不會索取助記詞或私鑰。",
+	"legal.privacy.useTitle": "資訊用途",
+	"legal.privacy.useBody":
+		"資訊用於提供核心功能、維持服務可靠與安全、處理濫用或支援問題，以及履行法律義務。我們不會為廣告目的出售個人資訊。",
+	"legal.privacy.chainTitle": "區塊鏈紀錄",
+	"legal.privacy.chainBody":
+		"公鏈本質透明。錢包活動、代幣發行與交易可能透過瀏覽器、節點與索引服務永久可見。斷開錢包或清除本機資料，並不會刪除鏈上歷史。",
+	"legal.privacy.thirdTitle": "第三方",
+	"legal.privacy.thirdBody":
+		"你發起的請求可能經由錢包、RPC、託管、索引、圖片主機或分析服務處理，並適用其各自條款。透過介面連結的協議與合約獨立於 {siteName}。",
+	"legal.privacy.rightsTitle": "你的選擇",
+	"legal.privacy.rightsBody":
+		"在介面允許的情況下可不連錢包瀏覽，也可隨時斷開並清除瀏覽器儲存。若適用法律賦予你對鏈下紀錄的查閱、更正或刪除權利，請聯絡本站營運方。鏈上資料我們無法修改。",
+	"legal.privacy.contactTitle": "聯絡",
+	"legal.privacy.contactBody":
+		"有關 {siteName} 的隱私問題，請透過本站部署方公開的聯絡管道聯繫營運方。",
+	"legal.terms.intro": "使用 {siteName} 介面時適用的條件與風險。",
+	"legal.terms.agreeTitle": "協議",
+	"legal.terms.agreeBody":
+		"使用 {siteName}、連接錢包，或經介面提交交易，即表示你接受本條款與隱私權政策。若不同意，請勿使用。你須達到所在地法定年齡並具備締約能力，且使用行為須合法。",
+	"legal.terms.serviceTitle": "非託管介面",
+	"legal.terms.serviceBody":
+		"{siteName} 提供與公開智能合約互動的軟體。我們不是銀行、券商、交易所、託管人或投資顧問。我們不持有資產、不控制錢包、不保證結算，也無法撤銷區塊鏈交易。",
+	"legal.terms.walletTitle": "錢包與安全",
+	"legal.terms.walletBody":
+		"你須自行負責錢包、裝置與金鑰。我們絕不會索取助記詞。簽署前請核對每筆授權與交易。經你錢包授權的行為由你負責，包括裝置遭入侵的情況。",
+	"legal.terms.txTitle": "交易",
+	"legal.terms.txBody":
+		"介面顯示的價格、報價、餘額與模擬僅為估計，可能延遲或不準。交易可能因網路狀況、流動性或合約行為而失敗、卡住，或以非預期價格成交。鏈上打包與時間不予保證。",
+	"legal.terms.contentTitle": "代幣與內容",
+	"legal.terms.contentBody":
+		"你對自己創建或推廣的代幣，以及提交的內容負責。介面列表或排序不構成背書。我們可基於法律、安全或濫用原因隱藏或移除我們控制的鏈下內容，但無法刪除公開鏈上紀錄。",
+	"legal.terms.riskTitle": "風險",
+	"legal.terms.riskBody":
+		"代幣可能劇烈波動、缺乏流動性、未經審計、具惡意或毫無價值。智能合約、錢包、RPC 及其他基礎設施可能故障。你可能損失部分或全部價值。請自行研究，只用能承受損失的資產。{siteName} 上的任何內容均不構成買賣要約或招攬。",
+	"legal.terms.useTitle": "可接受使用",
+	"legal.terms.useBody":
+		"不得將介面用於違法行為、詐欺、規避制裁、市場操縱、惡意軟體、濫用爬取或誤導他人。不得干擾服務或利用漏洞。基於法律、安全或營運需要，我們可合理限制存取。",
+	"legal.terms.noAdviceTitle": "無保證與責任限制",
+	"legal.terms.noAdviceBody":
+		"{siteName} 按現況提供，不保證可用性、正確性或特定用途適用性。在法律允許的最大範圍內，我們不對交易損失、失敗交易、第三方服務或他人內容負責。稅務與合規由你自行負責。",
+	"legal.terms.contactTitle": "變更與聯絡",
+	"legal.terms.contactBody":
+		"本條款可能隨產品或法規更新。更新後若繼續使用，即表示接受修訂條款。有關 {siteName} 的問題，請透過營運方公開的聯絡管道提出。",
 	"error.load": "資料載入失敗，請稍後重試。",
 	"error.chart": "圖表資料載入失敗。",
 	"error.invalidAddress": "代幣地址無效。",
@@ -642,6 +757,64 @@ const ja: Dictionary = {
 	"language.label": "言語",
 	"common.loading": "読み込み中…",
 	"common.close": "閉じる",
+	"footer.legal": "法務情報",
+	"footer.privacy": "プライバシーポリシー",
+	"footer.terms": "利用規約",
+	"footer.riskTitle": "リスクに関する注意",
+	"footer.riskBody":
+		"取引はウォレット経由で送信され、取り消せない場合があります。トークンは大きく変動し、価値を失う可能性があります。{siteName} は資産の保管、保証、または金融アドバイスを提供しません。",
+	"legal.privacy.intro":
+		"{siteName} を閲覧し、ウォレットを接続し、トークンを作成・取引し、またはその他の方法で本インターフェースを利用する際の情報の取り扱いについて説明します。",
+	"legal.privacy.aboutTitle": "本ポリシーについて",
+	"legal.privacy.aboutBody":
+		"{siteName} はノンカストディアルなフロントエンドです。ウォレットの管理、秘密鍵の保管、資産の移動は行いません。本ポリシーは、インターフェース運営のために処理される限定的な情報を説明します。",
+	"legal.privacy.collectTitle": "収集する可能性のある情報",
+	"legal.privacy.collectBody":
+		"利用方法に応じて、公開ウォレットアドレスと署名、トランザクションハッシュ等の公開オンチェーン活動、提出コンテンツ（トークン名・画像・説明など）、端末／ブラウザ情報、IP 関連の技術ログ、基本的な利用分析が含まれる場合があります。シードフレーズや秘密鍵を求めることはありません。",
+	"legal.privacy.useTitle": "情報の利用目的",
+	"legal.privacy.useBody":
+		"情報は主要機能の提供、サービスの信頼性・安全性の維持、不正利用やサポート対応、法令遵守のために使用されます。広告目的で個人情報を販売しません。",
+	"legal.privacy.chainTitle": "ブロックチェーン記録",
+	"legal.privacy.chainBody":
+		"公開チェーンは透明です。ウォレット活動、トークン発行、取引はエクスプローラーやノード、インデクサを通じて永続的に見える場合があります。ウォレット切断やローカルデータの削除では、オンチェーン履歴は消えません。",
+	"legal.privacy.thirdTitle": "第三者",
+	"legal.privacy.thirdBody":
+		"開始したリクエストは、ウォレット、RPC、ホスティング、インデクサ、画像ホスト、分析サービスを経由する場合があり、各サービスの条件が適用されます。リンク先のプロトコルやコントラクトは {siteName} とは独立しています。",
+	"legal.privacy.rightsTitle": "あなたの選択",
+	"legal.privacy.rightsBody":
+		"UI が許す範囲ではウォレット未接続でも閲覧でき、いつでも切断しブラウザ保存を消去できます。適用法がオフチェーン記録のアクセス・訂正・削除権を認める場合は、本デプロイの運営者へ連絡してください。オンチェーンデータは当社では変更できません。",
+	"legal.privacy.contactTitle": "お問い合わせ",
+	"legal.privacy.contactBody":
+		"{siteName} のプライバシーに関する質問は、本デプロイで公開されている窓口から運営者へご連絡ください。",
+	"legal.terms.intro":
+		"{siteName} インターフェースへのアクセスまたは利用に適用される条件とリスク。",
+	"legal.terms.agreeTitle": "同意",
+	"legal.terms.agreeBody":
+		"{siteName} を利用し、ウォレットを接続し、またはインターフェース経由で取引を送信することで、本規約およびプライバシーポリシーに同意したものとみなします。同意しない場合は利用しないでください。居住地で契約可能な年齢・能力を有し、適法に利用する必要があります。",
+	"legal.terms.serviceTitle": "ノンカストディアル・インターフェース",
+	"legal.terms.serviceBody":
+		"{siteName} は公開スマートコントラクトとやり取りするためのソフトウェアを提供します。銀行・ブローカー・取引所・保管者・投資助言者ではありません。資産の保有、ウォレットの制御、決済保証、ブロックチェーン取引の取消は行いません。",
+	"legal.terms.walletTitle": "ウォレットとセキュリティ",
+	"legal.terms.walletBody":
+		"ウォレット、端末、鍵の管理はご自身の責任です。リカバリーフレーズを求めることはありません。署名前に承認内容と取引を確認してください。ウォレット経由で承認された行為は、端末侵害を含めご自身の責任です。",
+	"legal.terms.txTitle": "取引",
+	"legal.terms.txBody":
+		"UI に表示される価格・見積もり・残高・シミュレーションは推定であり、遅延や誤りがあり得ます。ネットワーク状況、流動性、コントラクト動作により取引は失敗・停滞したり、想定外の価格で執行される場合があります。オンチェーンへの取り込みやタイミングは保証されません。",
+	"legal.terms.contentTitle": "トークンとコンテンツ",
+	"legal.terms.contentBody":
+		"作成・宣伝するトークンおよび提出コンテンツはご自身の責任です。インターフェース上の掲載や順位は推奨ではありません。法務・セキュリティ・不正利用の理由で当社が管理するオフチェーンコンテンツを非表示・削除することがありますが、公開ブロックチェーン記録は削除できません。",
+	"legal.terms.riskTitle": "リスク",
+	"legal.terms.riskBody":
+		"トークンは大きく変動し、流動性不足・未監査・悪意あるもの、または無価値となり得ます。スマートコントラクト、ウォレット、RPC、その他インフラは故障し得ます。価値の一部または全部を失う可能性があります。自己調査を行い、失ってもよい資産のみを用いてください。{siteName} 上のいかなる内容も、トークンの売買の申込みや勧誘ではありません。",
+	"legal.terms.useTitle": "利用上の禁止事項",
+	"legal.terms.useBody":
+		"違法行為、詐欺、制裁回避、相場操縦、マルウェア、過度なスクレイピング、他者を誤導する行為に本インターフェースを用いないでください。サービスの妨害や脆弱性の悪用も禁止です。法務・セキュリティ・運営上の合理的な必要に応じてアクセスを制限する場合があります。",
+	"legal.terms.noAdviceTitle": "保証なし・責任の限定",
+	"legal.terms.noAdviceBody":
+		"{siteName} は現状有姿で提供され、稼働、正確性、特定目的適合性を保証しません。法律で認められる最大限の範囲で、取引損失、失敗した取引、第三者サービス、他者コンテンツについて責任を負いません。税務および法令遵守はご自身の責任です。",
+	"legal.terms.contactTitle": "変更と連絡",
+	"legal.terms.contactBody":
+		"本規約は製品や法令の変化に伴い更新される場合があります。更新後の継続利用は改訂規約への同意を意味します。{siteName} に関する質問は、運営者が公開する窓口へお送りください。",
 	"error.load": "データを読み込めません。もう一度お試しください。",
 	"error.chart": "チャートデータを読み込めません。",
 	"error.invalidAddress": "トークンアドレスが無効です。",
@@ -923,6 +1096,64 @@ const vi: Dictionary = {
 	"language.label": "Ngôn ngữ",
 	"common.loading": "Đang tải…",
 	"common.close": "Đóng",
+	"footer.legal": "Pháp lý",
+	"footer.privacy": "Chính sách bảo mật",
+	"footer.terms": "Điều khoản sử dụng",
+	"footer.riskTitle": "Cảnh báo rủi ro",
+	"footer.riskBody":
+		"Giao dịch được gửi qua ví của bạn và có thể không hoàn tác được. Token có thể biến động mạnh hoặc mất toàn bộ giá trị. {siteName} không cung cấp lưu ký, bảo đảm hay tư vấn tài chính.",
+	"legal.privacy.intro":
+		"Cách {siteName} xử lý thông tin khi bạn duyệt, kết nối ví, tạo hoặc giao dịch token, hoặc dùng giao diện theo cách khác.",
+	"legal.privacy.aboutTitle": "Về chính sách này",
+	"legal.privacy.aboutBody":
+		"{siteName} là giao diện front-end không lưu ký. Chúng tôi không kiểm soát ví, không giữ khóa riêng và không chuyển tài sản hộ bạn. Chính sách này mô tả thông tin hạn chế có thể được xử lý để vận hành giao diện.",
+	"legal.privacy.collectTitle": "Thông tin có thể thu thập",
+	"legal.privacy.collectBody":
+		"Tùy cách bạn dùng trang, có thể gồm địa chỉ ví công khai và chữ ký, hash giao dịch cùng hoạt động on-chain công khai khác, nội dung bạn gửi (tên token, ảnh, mô tả), metadata thiết bị/trình duyệt, nhật ký kỹ thuật liên quan IP, và phân tích sử dụng cơ bản. Chúng tôi không bao giờ yêu cầu seed phrase hay khóa riêng.",
+	"legal.privacy.useTitle": "Cách chúng tôi dùng thông tin",
+	"legal.privacy.useBody":
+		"Thông tin dùng để cung cấp tính năng cốt lõi, duy trì độ tin cậy và bảo mật, xử lý lạm dụng hoặc hỗ trợ, và tuân thủ nghĩa vụ pháp lý. Chúng tôi không bán thông tin cá nhân cho quảng cáo.",
+	"legal.privacy.chainTitle": "Bản ghi blockchain",
+	"legal.privacy.chainBody":
+		"Chuỗi công khai vốn minh bạch. Hoạt động ví, phát hành token và giao dịch có thể luôn hiển thị qua explorer, node và indexer. Ngắt ví hoặc xóa dữ liệu cục bộ không xóa lịch sử on-chain.",
+	"legal.privacy.thirdTitle": "Bên thứ ba",
+	"legal.privacy.thirdBody":
+		"Yêu cầu bạn gửi có thể đi qua ví, RPC, hosting, indexer, máy chủ ảnh hoặc dịch vụ phân tích theo điều khoản riêng của họ. Giao thức và hợp đồng được liên kết độc lập với {siteName}.",
+	"legal.privacy.rightsTitle": "Lựa chọn của bạn",
+	"legal.privacy.rightsBody":
+		"Bạn có thể duyệt mà không kết nối ví khi UI cho phép, ngắt kết nối bất cứ lúc nào và xóa bộ nhớ trình duyệt. Nếu luật áp dụng cho phép quyền truy cập, sửa hoặc xóa bản ghi off-chain, hãy liên hệ nhà vận hành bản triển khai này. Dữ liệu on-chain chúng tôi không thể thay đổi.",
+	"legal.privacy.contactTitle": "Liên hệ",
+	"legal.privacy.contactBody":
+		"Câu hỏi quyền riêng tư về {siteName} hãy gửi tới nhà vận hành qua kênh liên hệ được công bố cho bản triển khai này.",
+	"legal.terms.intro":
+		"Điều kiện và rủi ro áp dụng khi bạn truy cập hoặc sử dụng giao diện {siteName}.",
+	"legal.terms.agreeTitle": "Thỏa thuận",
+	"legal.terms.agreeBody":
+		"Bằng việc dùng {siteName}, kết nối ví hoặc gửi giao dịch qua giao diện, bạn chấp nhận các Điều khoản này và Chính sách bảo mật. Nếu không đồng ý, đừng sử dụng. Bạn phải đủ tuổi và có năng lực pháp lý tại nơi cư trú, và việc sử dụng phải hợp pháp.",
+	"legal.terms.serviceTitle": "Giao diện không lưu ký",
+	"legal.terms.serviceBody":
+		"{siteName} cung cấp phần mềm để tương tác với hợp đồng thông minh công khai. Chúng tôi không phải ngân hàng, môi giới, sàn, đơn vị lưu ký hay cố vấn đầu tư. Chúng tôi không giữ tài sản, không kiểm soát ví, không bảo đảm quyết toán và không thể đảo ngược giao dịch blockchain.",
+	"legal.terms.walletTitle": "Ví và bảo mật",
+	"legal.terms.walletBody":
+		"Bạn chịu trách nhiệm về ví, thiết bị và khóa. Chúng tôi không bao giờ hỏi cụm khôi phục. Hãy xem lại mọi phê duyệt và giao dịch trước khi ký. Hoạt động được ủy quyền qua ví là trách nhiệm của bạn, kể cả khi thiết bị bị xâm nhập.",
+	"legal.terms.txTitle": "Giao dịch",
+	"legal.terms.txBody":
+		"Giá, báo giá, số dư và mô phỏng trên UI chỉ là ước tính, có thể trễ hoặc sai. Giao dịch có thể thất bại, treo hoặc khớp với giá ngoài dự kiến do mạng, thanh khoản hoặc hành vi hợp đồng. Việc đưa vào chuỗi và thời gian không được bảo đảm.",
+	"legal.terms.contentTitle": "Token và nội dung",
+	"legal.terms.contentBody":
+		"Bạn chịu trách nhiệm về token bạn tạo hoặc quảng bá và nội dung bạn gửi. Việc liệt kê hay xếp hạng trên giao diện không phải là chứng thực. Chúng tôi có thể ẩn hoặc gỡ nội dung off-chain do chúng tôi kiểm soát vì lý do pháp lý, bảo mật hoặc lạm dụng, nhưng không thể xóa bản ghi blockchain công khai.",
+	"legal.terms.riskTitle": "Rủi ro",
+	"legal.terms.riskBody":
+		"Token có thể biến động mạnh, thiếu thanh khoản, chưa kiểm toán, độc hại hoặc vô giá trị. Hợp đồng thông minh, ví, RPC và hạ tầng khác có thể lỗi. Bạn có thể mất một phần hoặc toàn bộ giá trị. Hãy tự nghiên cứu và chỉ dùng tài sản có thể chịu lỗ. Không nội dung nào trên {siteName} là chào mua/bán hay mời chào token.",
+	"legal.terms.useTitle": "Sử dụng chấp nhận được",
+	"legal.terms.useBody":
+		"Không dùng giao diện cho hoạt động bất hợp pháp, gian lận, né lệnh trừng phạt, thao túng thị trường, malware, crawl lạm dụng hoặc gây hiểu nhầm. Không can thiệp dịch vụ hay khai thác lỗ hổng. Chúng tôi có thể hạn chế truy cập khi cần vì lý do pháp lý, bảo mật hoặc vận hành.",
+	"legal.terms.noAdviceTitle": "Không bảo đảm; giới hạn trách nhiệm",
+	"legal.terms.noAdviceBody":
+		"{siteName} được cung cấp nguyên trạng, không bảo đảm thời gian hoạt động, độ chính xác hay phù hợp mục đích. Trong phạm vi pháp luật cho phép tối đa, chúng tôi không chịu trách nhiệm về lỗ giao dịch, giao dịch thất bại, dịch vụ bên thứ ba hay nội dung của người khác. Thuế và tuân thủ là trách nhiệm của bạn.",
+	"legal.terms.contactTitle": "Thay đổi và liên hệ",
+	"legal.terms.contactBody":
+		"Các Điều khoản này có thể được cập nhật khi sản phẩm hoặc pháp luật thay đổi. Tiếp tục sử dụng sau cập nhật nghĩa là bạn chấp nhận bản sửa đổi. Câu hỏi về {siteName} hãy gửi qua kênh liên hệ do nhà vận hành công bố.",
 	"error.load": "Không thể tải dữ liệu. Vui lòng thử lại.",
 	"error.chart": "Không thể tải dữ liệu biểu đồ.",
 	"error.invalidAddress": "Địa chỉ token không hợp lệ.",

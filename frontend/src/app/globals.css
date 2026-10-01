@@ -131,7 +131,7 @@ a {
 .site-main {
 	max-width: 1100px;
 	margin: 0 auto;
-	padding: 1.25rem 1.5rem 4rem;
+	padding: 1.25rem 1.5rem 2.5rem;
 }
 
 .site-main:has(.detail-layout) {
@@ -139,6 +139,179 @@ a {
 	width: 100%;
 	margin: 0;
 	padding: 0.75rem 0.75rem 2.5rem 0.5rem;
+}
+
+.site-footer {
+	position: relative;
+	margin-top: 1.5rem;
+	padding: 0 1.5rem 2.25rem;
+}
+
+.site-footer-rule {
+	height: 1px;
+	margin: 0 0 1.35rem;
+	background: linear-gradient(
+		90deg,
+		transparent 0%,
+		rgba(0, 0, 0, 0.08) 18%,
+		rgba(0, 0, 0, 0.14) 50%,
+		rgba(0, 0, 0, 0.08) 82%,
+		transparent 100%
+	);
+}
+
+.site-footer-inner {
+	max-width: 720px;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.65rem;
+	text-align: center;
+}
+
+.site-footer-links {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4rem;
+}
+
+.site-footer-links a {
+	font-size: 0.78rem;
+	font-weight: 550;
+	color: rgba(0, 0, 0, 0.58);
+	text-decoration: none;
+	transition: color 0.15s ease;
+}
+
+.site-footer-links a:hover {
+	color: var(--color-primary);
+}
+
+.site-footer-dot {
+	color: rgba(0, 0, 0, 0.28);
+	font-size: 0.78rem;
+	line-height: 1;
+	user-select: none;
+}
+
+.site-footer-risk {
+	margin: 0;
+	max-width: 58ch;
+	font-size: 0.7rem;
+	line-height: 1.65;
+	color: rgba(0, 0, 0, 0.45);
+}
+
+.site-footer-risk-label {
+	font-weight: 650;
+	color: rgba(0, 0, 0, 0.55);
+}
+
+.legal-page {
+	max-width: 720px;
+	margin: 0 auto;
+	padding: 0.75rem 0 2.5rem;
+}
+
+.legal-page h1 {
+	margin: 0 0 0.65rem;
+	font-size: 1.5rem;
+	letter-spacing: -0.01em;
+}
+
+.legal-page-meta {
+	margin: 0 0 1.75rem;
+	padding: 0.7rem 0.85rem;
+	border: 1px solid var(--line);
+	border-radius: 10px;
+	background: rgba(0, 0, 0, 0.025);
+	font-size: 0.8rem;
+	line-height: 1.55;
+}
+
+.legal-page-section {
+	margin-bottom: 1.5rem;
+	padding-bottom: 1.35rem;
+	border-bottom: 1px solid var(--line-hairline);
+}
+
+.legal-page-section:last-child {
+	border-bottom: 0;
+	padding-bottom: 0;
+}
+
+.legal-page-section h2 {
+	margin: 0 0 0.5rem;
+	font-size: 0.95rem;
+	font-weight: 650;
+}
+
+.legal-page-section p {
+	margin: 0;
+	font-size: 0.88rem;
+	line-height: 1.7;
+	color: var(--color-muted);
+}
+
+html.theme-detail .site-footer {
+	padding: 0 0.75rem 2rem;
+}
+
+html.theme-detail .site-footer-rule {
+	background: linear-gradient(
+		90deg,
+		transparent 0%,
+		rgba(42, 42, 42, 0.9) 18%,
+		rgba(108, 255, 50, 0.22) 50%,
+		rgba(42, 42, 42, 0.9) 82%,
+		transparent 100%
+	);
+}
+
+html.theme-detail .site-footer-inner {
+	max-width: 720px;
+}
+
+html.theme-detail .site-footer-links a {
+	color: rgba(255, 255, 255, 0.62);
+}
+
+html.theme-detail .site-footer-links a:hover {
+	color: var(--accent);
+}
+
+html.theme-detail .site-footer-dot {
+	color: rgba(255, 255, 255, 0.28);
+}
+
+html.theme-detail .site-footer-risk {
+	color: rgba(255, 255, 255, 0.4);
+}
+
+html.theme-detail .site-footer-risk-label {
+	color: rgba(255, 255, 255, 0.55);
+}
+
+html.theme-detail .legal-page-meta {
+	border-color: rgba(255, 255, 255, 0.08);
+	background: rgba(255, 255, 255, 0.03);
+	color: var(--ink-faint);
+}
+
+html.theme-detail .legal-page-section {
+	border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+html.theme-detail .legal-page h1,
+html.theme-detail .legal-page-section h2 {
+	color: var(--ink);
+}
+
+html.theme-detail .legal-page-section p {
+	color: var(--ink-dim);
 }
 
 .home-market-head {
