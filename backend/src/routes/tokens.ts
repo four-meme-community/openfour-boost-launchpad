@@ -3,9 +3,10 @@
  * Public POST: meme-api-key only (BFF-injected), no RSA.
  *
  * Query:
- * - type: NEW | PROGRESS | DEX | HOT …
+ * - type: NEW | VOL | CAP | HOT | PROGRESS | DEX …
  * - listType: TEP | NOR | NOR_DEX …
  * - status: PUBLISH | TRADE | ALL
+ * - sort: ASC | DESC (search ranking direction)
  * - version: V12 (default)
  */
 import { Hono } from "hono";
@@ -28,6 +29,7 @@ tokensRoutes.get("/", async (c) => {
 	const listType = c.req.query("listType") || "TEP";
 	const status = c.req.query("status") || "PUBLISH";
 	const version = c.req.query("version") || "V12";
+	const sort = c.req.query("sort")?.toUpperCase();
 	const keyword = c.req.query("keyword")?.trim() || undefined;
 	const templateId = c.req.query("templateId") || undefined;
 	const networkCode = normalizeMemeNetworkCode(
@@ -43,6 +45,7 @@ tokensRoutes.get("/", async (c) => {
 		listType,
 		status,
 		version,
+		...(sort === "ASC" || sort === "DESC" ? { sort } : {}),
 		...(keyword ? { keyword } : {}),
 		...(templateId ? { templateId: Number(templateId) } : {}),
 		...(env.FILTER_BY_PARTNER ? { filterByPartner: true } : {}),

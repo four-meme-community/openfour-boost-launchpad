@@ -1,6 +1,6 @@
 /**
- * Home search: trigger bar + floating modal (Esc / overlay / `/` shortcut).
- * Results use partner token search; no tags / buy / history chrome.
+ * Header search: trigger bar + floating modal (Esc / overlay / `/` shortcut).
+ * Sort filters map to partner search `type`: NEW / VOL / CAP.
  */
 "use client";
 
@@ -25,9 +25,16 @@ import {
 	fetchTokenList,
 	imageUrl,
 	isTokenOnDex,
+	type SearchSortType,
 	type TokenListItem,
 } from "@/lib/meme-api";
 import { toUsdMarketCap, toUsdPrice } from "@/lib/quote-usd";
+
+const SEARCH_SORTS = [
+	{ type: "NEW" as const, labelKey: "market.sortTime" as const },
+	{ type: "VOL" as const, labelKey: "market.sortVolume" as const },
+	{ type: "CAP" as const, labelKey: "market.sortCap" as const },
+];
 
 function SearchIcon() {
 	return (
@@ -53,6 +60,7 @@ export function TokenSearch() {
 	const [open, setOpen] = useState(false);
 	const [query, setQuery] = useState("");
 	const [debounced, setDebounced] = useState("");
+	const [sortType, setSortType] = useState<SearchSortType>("NEW");
 	const [items, setItems] = useState<TokenListItem[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -63,6 +71,7 @@ export function TokenSearch() {
 		setOpen(false);
 		setQuery("");
 		setDebounced("");
+		setSortType("NEW");
 		setItems([]);
 		setError(null);
 	}, []);
@@ -122,7 +131,10 @@ export function TokenSearch() {
 				const res = await fetchTokenList({
 					pageIndex: 1,
 					pageSize: 20,
-					tab: "new",
+					type: sortType,
+					listType: "TEP",
+					status: "ALL",
+					sort: "DESC",
 					keyword: debounced,
 				});
 				if (cancelled) return;
@@ -141,7 +153,7 @@ export function TokenSearch() {
 		return () => {
 			cancelled = true;
 		};
-	}, [debounced, open, t]);
+	}, [debounced, open, sortType, t]);
 
 	return (
 		<>
@@ -189,6 +201,21 @@ export function TokenSearch() {
 								spellCheck={false}
 							/>
 							<kbd className="token-search-kbd">Esc</kbd>
+						</div>
+
+						<div className="token-search-filters" role="tablist">
+							{SEARCH_SORTS.map((item) => (
+								<button
+									key={item.type}
+									type="button"
+									role="tab"
+									aria-selected={sortType === item.type}
+									className={`token-search-filter${sortType === item.type ? " active" : ""}`}
+									onClick={() => setSortType(item.type)}
+								>
+									{t(item.labelKey)}
+								</button>
+							))}
 						</div>
 
 						<div className="token-search-body">

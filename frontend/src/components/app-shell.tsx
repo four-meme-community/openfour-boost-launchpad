@@ -57,6 +57,9 @@ export function AppShell({
 						<WalletButton />
 					</div>
 				</div>
+				<div className="header-search">
+					<TokenSearch />
+				</div>
 				<nav className="nav">
 					{nav.map((item) => (
 						<Link
@@ -69,9 +72,6 @@ export function AppShell({
 							{item.label}
 						</Link>
 					))}
-					<div className="nav-search">
-						<TokenSearch />
-					</div>
 				</nav>
 			</header>
 			<main className="site-main">{children}</main>

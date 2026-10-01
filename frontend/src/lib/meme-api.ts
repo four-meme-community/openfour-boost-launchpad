@@ -182,6 +182,9 @@ export function marketTabSearchParams(tab: MarketTab): {
 	};
 }
 
+/** Search ranking types supported by partner `token/search` (also used by meme-launcher). */
+export type SearchSortType = "NEW" | "VOL" | "CAP" | "HOT" | "GAIN";
+
 /** BFF-aggregated V12 list (new / almost graduated / graduated) */
 export async function fetchTokenList(params?: {
 	pageIndex?: number;
@@ -190,6 +193,7 @@ export async function fetchTokenList(params?: {
 	listType?: string;
 	status?: string;
 	version?: string;
+	sort?: "ASC" | "DESC";
 	keyword?: string;
 	templateId?: number;
 	tab?: MarketTab;
@@ -202,6 +206,9 @@ export async function fetchTokenList(params?: {
 	qs.set("listType", params?.listType ?? fromTab?.listType ?? "TEP");
 	qs.set("status", params?.status ?? fromTab?.status ?? "ALL");
 	qs.set("version", params?.version ?? fromTab?.version ?? "V12");
+	if (params?.sort === "ASC" || params?.sort === "DESC") {
+		qs.set("sort", params.sort);
+	}
 	if (params?.keyword?.trim()) qs.set("keyword", params.keyword.trim());
 	if (params?.templateId) qs.set("templateId", String(params.templateId));
 	qs.set("networkCode", getClientMemeNetworkCode());
