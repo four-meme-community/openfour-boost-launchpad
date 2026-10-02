@@ -75,8 +75,6 @@ function fmtHuman(v: string | number, dp = 6) {
 	return n.decimalPlaces(dp, BigNumber.ROUND_DOWN).toFixed();
 }
 
-type DexSource = "zap" | "pancake-v2" | null;
-
 export function TradePanel({
 	tokenAddress,
 	quoteSymbol,
@@ -107,7 +105,6 @@ export function TradePanel({
 	const [zapRouter, setZapRouter] = useState<Address | null>(null);
 	const [zapRoute, setZapRoute] = useState<ZapRoute | null>(null);
 	const [taxBps, setTaxBps] = useState({ buy: 0, sell: 0 });
-	const [dexSource, setDexSource] = useState<DexSource>(null);
 	const zapQuoteRef = useRef<ZapQuote | null>(null);
 
 	useEffect(() => {
@@ -285,7 +282,6 @@ export function TradePanel({
 		if (!address || !amount || !(Number(amount) > 0)) {
 			setPreviewOut("0");
 			zapQuoteRef.current = null;
-			setDexSource(null);
 			return;
 		}
 		let cancelled = false;
@@ -308,7 +304,6 @@ export function TradePanel({
 						if (cancelled) return;
 						if (quote) {
 							zapQuoteRef.current = quote;
-							setDexSource("zap");
 							setPreviewOut(fmtEther(quote.amountOut));
 							return;
 						}
@@ -327,15 +322,11 @@ export function TradePanel({
 									useNative: settleNative,
 								});
 					if (!path) {
-						if (!cancelled) {
-							setPreviewOut("0");
-							setDexSource(null);
-						}
+						if (!cancelled) setPreviewOut("0");
 						return;
 					}
 					const out = await quoteExactIn(amountWei, path);
 					if (cancelled) return;
-					setDexSource("pancake-v2");
 					setPreviewOut(fmtEther(out));
 					return;
 				}
@@ -363,7 +354,6 @@ export function TradePanel({
 				if (!cancelled) {
 					setPreviewOut("0");
 					zapQuoteRef.current = null;
-					setDexSource(null);
 				}
 			}
 		}, 450);
@@ -436,7 +426,6 @@ export function TradePanel({
 					buyTaxBps: taxBps.buy,
 					...gas,
 				});
-				setDexSource("zap");
 				return hash;
 			}
 		}
@@ -471,7 +460,6 @@ export function TradePanel({
 			payNative: side === "buy" && settleNative,
 			...gas,
 		});
-		setDexSource("pancake-v2");
 		return hash;
 	};
 
@@ -570,16 +558,9 @@ export function TradePanel({
 	};
 
 	const buyActive = side === "buy";
-	const modeHint = !onDex
-		? t("trade.internal")
-		: dexSource === "zap" || (settleNative && zapReady)
-			? t("trade.externalZap")
-			: t("trade.externalV2");
 
 	return (
 		<section className="trade-panel">
-			<div className="trade-panel__mode muted">{modeHint}</div>
-
 			<div className="trade-tabs">
 				<button
 					type="button"

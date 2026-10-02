@@ -353,10 +353,8 @@ html.theme-detail .legal-page-section p {
 
 .trade-docker {
 	grid-area: docker;
-	position: sticky;
-	top: 0.75rem;
+	position: static;
 	align-self: start;
-	z-index: 5;
 	min-width: 0;
 	width: 100%;
 }
@@ -372,17 +370,6 @@ html.theme-detail .legal-page-section p {
 	overflow: hidden;
 	max-height: calc(100vh - 1.5rem);
 	overflow-y: auto;
-}
-
-.trade-docker-pair {
-	padding: 0.75rem 1rem 0.35rem;
-	font-size: 0.95rem;
-	font-weight: 700;
-	letter-spacing: -0.01em;
-	color: var(--ink);
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
 }
 
 .trade-docker .token-metrics {
@@ -2454,13 +2441,6 @@ html.theme-detail .token-search-img {
 	color: var(--ink);
 }
 
-.trade-panel__mode {
-	font-size: 0.75rem;
-	color: var(--ink-dim);
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-}
-
 .trade-tabs {
 	display: flex;
 	gap: 0;
@@ -3412,29 +3392,17 @@ html.theme-detail .trade-docker {
 	display: flex;
 	flex-direction: column;
 	gap: var(--detail-gap);
-	position: static;
-	top: auto;
-	z-index: auto;
 	max-height: none;
 	overflow: visible;
 }
 
 html.theme-detail .trade-docker-card {
-	position: sticky;
-	top: 0.75rem;
-	z-index: 5;
 	max-height: none;
 	flex-shrink: 0;
 }
 
 html.theme-detail .trade-docker .token-info-card {
 	flex-shrink: 0;
-}
-
-@media (max-width: 1180px) {
-	html.theme-detail .trade-docker-card {
-		position: static;
-	}
 }
 
 html.theme-detail .trade-docker .token-metrics {
