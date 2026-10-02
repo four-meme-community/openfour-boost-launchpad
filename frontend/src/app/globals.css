@@ -3412,17 +3412,29 @@ html.theme-detail .trade-docker {
 	display: flex;
 	flex-direction: column;
 	gap: var(--detail-gap);
+	position: static;
+	top: auto;
+	z-index: auto;
 	max-height: none;
 	overflow: visible;
 }
 
 html.theme-detail .trade-docker-card {
+	position: sticky;
+	top: 0.75rem;
+	z-index: 5;
 	max-height: none;
 	flex-shrink: 0;
 }
 
 html.theme-detail .trade-docker .token-info-card {
 	flex-shrink: 0;
+}
+
+@media (max-width: 1180px) {
+	html.theme-detail .trade-docker-card {
+		position: static;
+	}
 }
 
 html.theme-detail .trade-docker .token-metrics {
