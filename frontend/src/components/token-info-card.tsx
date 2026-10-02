@@ -54,7 +54,7 @@ export function TokenInfoCard({
 	);
 	const progressPct = bondingProgressPct(ticker?.progress);
 	const raisedQuote = ticker?.bnbAmount;
-	const quoteLabel = token.symbol || "—";
+	const quoteLabel = token.quoteLabel || token.symbol || "—";
 	const targetRaise = resolveTargetRaiseAmount({
 		raisedAmount: token.raisedAmount,
 		raisedQuote,

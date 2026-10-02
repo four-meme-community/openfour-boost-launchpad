@@ -464,10 +464,12 @@ function CreateFormInner() {
 	const previewName = name.trim() || t("create.placeholderName");
 	const previewTicker = shortName.trim() || t("create.placeholderTicker");
 	const nativeSymbol = currentChain?.nativeSymbol || "BNB";
+	const raisedDisplay =
+		raised?.nativeSymbol?.trim() || raised?.symbol || nativeSymbol;
 	/** What the wallet actually spends for prebuy (native when quote==wrappedNative). */
 	const prebuyPaySymbol = quotePaysNative
 		? nativeSymbol
-		: raised?.symbol || nativeSymbol;
+		: raisedDisplay;
 	const prebuyBalWei = quotePaysNative
 		? (nativeBal?.value ?? 0n)
 		: (quoteBal?.value ?? 0n);
@@ -652,6 +654,8 @@ function CreateFormInner() {
 									))
 								: raisedList.map((item) => {
 										const active = raised?.symbol === item.symbol;
+										const label =
+											item.nativeSymbol?.trim() || item.symbol;
 										return (
 											<button
 												key={item.symbol}
@@ -665,14 +669,14 @@ function CreateFormInner() {
 													{item.logoUrl ? (
 														<img src={item.logoUrl} alt="" />
 													) : (
-														item.symbol.slice(0, 1)
+														label.slice(0, 1)
 													)}
 												</span>
 												<span className="create-quote-meta">
-													<strong>{item.symbol}</strong>
+													<strong>{label}</strong>
 													<em>
 														{Number(item.raisedAmount).toLocaleString()}{" "}
-														{item.symbol}
+														{label}
 													</em>
 												</span>
 											</button>
@@ -730,7 +734,9 @@ function CreateFormInner() {
 						<CreateTaxFields
 							value={taxInfo}
 							onChange={setTaxInfo}
-							quoteSymbol={raised?.symbol}
+							quoteSymbol={
+								raised?.nativeSymbol?.trim() || raised?.symbol
+							}
 						/>
 					</CreateSection>
 				) : null}
@@ -854,7 +860,7 @@ function CreateFormInner() {
 								{configLoading ? (
 									<Skeleton width={48} height="0.85rem" />
 								) : (
-									raised?.symbol || "—"
+									raisedDisplay
 								)}
 							</dd>
 						</div>

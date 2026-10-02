@@ -75,6 +75,8 @@ export type TemplateSymbolConfig = {
 	createFee: string;
 	decimals: number;
 	logoUrl?: string;
+	/** User-facing quote ticker from public config (`nativeSymbol`), e.g. RETH → ETH. */
+	nativeSymbol?: string;
 };
 
 export type CommonConfigItem = {
@@ -99,14 +101,14 @@ export async function loadTemplateConfig(
 	return res.data;
 }
 
-/** `/meme-api/v1/public/config` — quote tokens include logoUrl */
+/** `/meme-api/v1/public/config` — quote tokens include logoUrl + nativeSymbol */
 export async function loadCommonConfig() {
 	const res = await memeGet<CommonConfigItem[]>("/meme-api/v1/public/config");
 	if (res.code !== 0) throw new Error(res.msg || "Failed to load config");
 	return res.data || [];
 }
 
-function matchCommonConfig(
+export function matchCommonConfig(
 	commonConfig: CommonConfigItem[],
 	symbol: string,
 ): CommonConfigItem | undefined {
@@ -119,7 +121,23 @@ function matchCommonConfig(
 	);
 }
 
-/** Enrich template raised list with public config logoUrl (same as meme-launcher enrichRaisedTokenList) */
+/**
+ * Display label for a quote/trading unit.
+ * Prefer public config `nativeSymbol` (RETH→ETH, RUSDG→USDG); fall back to API `symbol`.
+ */
+export function quoteDisplaySymbol(
+	apiSymbol?: string | null,
+	commonConfig?: CommonConfigItem[] | null,
+): string {
+	const raw = String(apiSymbol || "").trim();
+	if (!raw) return "";
+	if (!commonConfig?.length) return raw;
+	const row = matchCommonConfig(commonConfig, raw);
+	const display = row?.nativeSymbol?.trim() || row?.symbol?.trim() || raw;
+	return display;
+}
+
+/** Enrich template raised list with public config logoUrl + nativeSymbol */
 export function enrichRaisedWithLogos(
 	templateConfig: TemplateSymbolConfig[],
 	commonConfig: CommonConfigItem[],
@@ -127,8 +145,12 @@ export function enrichRaisedWithLogos(
 	if (!templateConfig?.length) return [];
 	return templateConfig.map((item) => {
 		const common = matchCommonConfig(commonConfig, item.symbol);
-		if (!common?.logoUrl) return item;
-		return { ...item, logoUrl: common.logoUrl };
+		if (!common) return item;
+		return {
+			...item,
+			logoUrl: common.logoUrl || item.logoUrl,
+			nativeSymbol: common.nativeSymbol || item.nativeSymbol,
+		};
 	});
 }
 

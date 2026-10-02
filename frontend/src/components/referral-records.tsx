@@ -6,6 +6,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useCommonConfig } from "@/hooks/use-common-config";
 import { useI18n } from "@/i18n/provider";
 import { formatAddress, formatNum } from "@/lib/format";
 import { fetchInviteRecords, type InviteRecord } from "@/lib/invite-api";
@@ -24,6 +25,7 @@ function formatRecordDate(value?: number): string {
 
 export function ReferralRecords({ enabled }: { enabled: boolean }) {
 	const { t } = useI18n();
+	const { displayOf } = useCommonConfig();
 	const [records, setRecords] = useState<InviteRecord[]>([]);
 	const [pageIndex, setPageIndex] = useState(1);
 	const [hasMore, setHasMore] = useState(true);
@@ -100,7 +102,8 @@ export function ReferralRecords({ enabled }: { enabled: boolean }) {
 										: item.userName || formatAddress(item.address)}
 								</span>
 								<span>
-									{formatNum(item.bnbAmount, 4)} {item.symbol || "BNB"}
+									{formatNum(item.bnbAmount, 4)}{" "}
+									{displayOf(item.symbol) || item.symbol || "BNB"}
 								</span>
 								<span className="muted">{formatRecordDate(item.inviteDate)}</span>
 							</div>

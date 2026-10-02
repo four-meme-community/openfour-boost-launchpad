@@ -75,6 +75,7 @@ export function TokenMetrics({
 	const { priceOf } = useQuoteTickerPrices();
 	const status = ticker?.status ?? token.status;
 	const onDex = isTokenOnDex(status);
+	const quoteLabel = token.quoteLabel || token.symbol || "BNB";
 	const quoteUsd = priceOf(token.symbol);
 	const rawPrice = livePrice || ticker?.price;
 	const price =
@@ -209,14 +210,14 @@ export function TokenMetrics({
 			label: t("token.targetRaise"),
 			value:
 				targetRaise != null
-					? `${formatNum(targetRaise, 6)} ${token.symbol}`
+					? `${formatNum(targetRaise, 6)} ${quoteLabel}`
 					: "—",
 		});
 		stats.splice(3, 0, {
 			label: t("token.raised"),
 			value:
 				raised != null && raised !== ""
-					? `${formatNum(raised, 6)} ${token.symbol}`
+					? `${formatNum(raised, 6)} ${quoteLabel}`
 					: "—",
 			flashKey: raised,
 		});
@@ -264,9 +265,9 @@ export function TokenMetrics({
 					</div>
 					<span className="muted">
 						{t("token.targetRaise")}: {formatNum(targetRaise, 6)}{" "}
-						{token.symbol}
+						{quoteLabel}
 						{" · "}
-						{t("token.raised")} {formatNum(raised, 6)} {token.symbol}
+						{t("token.raised")} {formatNum(raised, 6)} {quoteLabel}
 						{" · "}
 						{t("token.sale")} {formatSupply(token.saleAmount)} /{" "}
 						{formatSupply(token.totalAmount)}

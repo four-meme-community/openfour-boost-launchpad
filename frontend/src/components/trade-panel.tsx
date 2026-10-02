@@ -29,6 +29,7 @@ import {
 	loadTemplateConfig,
 	sellTokenV12,
 } from "@/lib/open-four";
+import { useCommonConfig } from "@/hooks/use-common-config";
 import {
 	readMigrateModuleTag,
 	resolveZapDexRoute,
@@ -52,7 +53,6 @@ import {
 } from "@/lib/trade-settings";
 import { buildTxGas } from "@/lib/tx-gas";
 import { currentNativeQuoteSymbol } from "@/lib/chain";
-import { isNativeQuoteSymbol } from "@/lib/network";
 import { useI18n } from "@/i18n/provider";
 
 const PCTS = [0.25, 0.5, 0.75, 1] as const;
@@ -119,18 +119,24 @@ export function TradePanel({
 	const slippage = settings.slippage;
 	/** Chain native ticker from BFF /v1/config (BSC=BNB, Robinhood=ETH). */
 	const nativeSymbol = currentNativeQuoteSymbol();
-	/** Pair quote is already chain native (BNB/ETH), not e.g. RETH/BNC4. */
-	const quoteIsChainNative = isNativeQuoteSymbol(quoteSymbol);
+	const { displayOf, isNativePaymentQuote } = useCommonConfig();
+	/** User-facing quote name (RETH→ETH); API id stays in quoteSymbol for lookups. */
+	const quoteLabel = displayOf(quoteSymbol) || quoteSymbol;
+	/**
+	 * Pair quote settles as chain native when API id or config.nativeSymbol
+	 * matches chain native (BNB / ETH). RETH on Robinhood → true.
+	 */
+	const quoteIsChainNative = isNativePaymentQuote(quoteSymbol);
 	/**
 	 * Pay/receive chain native; bonding / ZapRouter convert to pair quote internally.
-	 * Toggle only when pair quote is a non-native id (RETH, BNC4, …).
+	 * Toggle only when pair quote is a non-native id (USDG, BNC4, …).
 	 */
 	const settleNative = quoteIsChainNative || payWithNative;
 	const options = settleNative ? 2n : 0n;
 	const inputSymbol =
-		side === "sell" ? tokenSymbol : settleNative ? nativeSymbol : quoteSymbol;
+		side === "sell" ? tokenSymbol : settleNative ? nativeSymbol : quoteLabel;
 	const receiveSymbol =
-		side === "buy" ? tokenSymbol : settleNative ? nativeSymbol : quoteSymbol;
+		side === "buy" ? tokenSymbol : settleNative ? nativeSymbol : quoteLabel;
 
 	useEffect(() => {
 		if (quoteIsChainNative) setPayWithNative(false);
@@ -251,7 +257,7 @@ export function TradePanel({
 		settlementDecimals,
 	);
 	const balanceLabelSymbol =
-		side === "sell" ? tokenSymbol : settleNative ? nativeSymbol : quoteSymbol;
+		side === "sell" ? tokenSymbol : settleNative ? nativeSymbol : quoteLabel;
 	const balancePending =
 		!!address &&
 		((side === "buy" && settleNative && nativeFetching && !nativeBal) ||

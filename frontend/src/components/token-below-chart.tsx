@@ -16,6 +16,7 @@ export function TokenBelowChart({
 	creator,
 	tokenAddress,
 	quoteSymbol,
+	quoteLabel,
 	holderCount,
 }: {
 	tokenId: number;
@@ -23,6 +24,8 @@ export function TokenBelowChart({
 	creator?: string | null;
 	tokenAddress?: string | null;
 	quoteSymbol?: string;
+	/** User-facing quote ticker (config.nativeSymbol) */
+	quoteLabel?: string;
 	holderCount?: number | null;
 }) {
 	const { t } = useI18n();
@@ -58,7 +61,10 @@ export function TokenBelowChart({
 
 			<div className="token-below-panel">
 				{tab === "fills" ? (
-					<TokenFills tokenId={tokenId} quoteSymbol={quoteSymbol} />
+					<TokenFills
+						tokenId={tokenId}
+						quoteSymbol={quoteLabel || quoteSymbol}
+					/>
 				) : (
 					<TokenHolders
 						tokenId={tokenId}

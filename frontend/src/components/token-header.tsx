@@ -39,7 +39,13 @@ export type TokenHeaderTicker = {
 export type TokenHeaderModel = {
 	name: string;
 	shortName: string;
+	/** API quote id (RETH, USD1, …) — used for price/config lookup */
 	symbol: string;
+	/**
+	 * User-facing quote ticker from config.nativeSymbol (RETH→ETH).
+	 * Fall back to `symbol` when unset.
+	 */
+	quoteLabel?: string;
 	address: string;
 	image?: string | null;
 	descr?: string | null;
@@ -60,14 +66,15 @@ export type TokenHeaderModel = {
 	webUrl?: string | null;
 };
 
-/** Display pair: token / quote */
+/** Display pair: token / quote (uses quoteLabel / nativeSymbol) */
 export function tokenPairLabel(token: {
 	shortName?: string | null;
 	name?: string | null;
 	symbol?: string | null;
+	quoteLabel?: string | null;
 }): string {
 	const base = (token.shortName || token.name || "TOKEN").trim();
-	const quote = (token.symbol || "BNB").trim();
+	const quote = (token.quoteLabel || token.symbol || "BNB").trim();
 	return `${base} / ${quote}`;
 }
 

@@ -23,6 +23,7 @@ import { TokenTaxSkeleton } from "@/components/token-tax-skeleton";
 import { imageUrl, memeGet, type TokenDetail } from "@/lib/meme-api";
 import { getActiveChain, toMemeApiNetworkCode } from "@/lib/chain";
 import { loadTemplateConfig } from "@/lib/open-four";
+import { useCommonConfig } from "@/hooks/use-common-config";
 import { wagmiConfig } from "@/lib/wagmi";
 import { fetchTaxConfig, type TokenTaxConfig } from "@/lib/tax-api";
 import { claimTaxFeeDirect, claimTaxFeeForOthers, claimTaxFees, readClaimableFees } from "@/lib/tax-claim";
@@ -155,6 +156,7 @@ function AllocationFacts({
 
 export default function TokenTaxPage() {
 	const { t } = useI18n();
+	const { displayOf } = useCommonConfig();
 	const params = useParams<{ address: string }>();
 	const address = params.address;
 	const { address: account } = useAccount();
@@ -372,7 +374,8 @@ export default function TokenTaxPage() {
 	if (!token || !taxInfo) return <TokenTaxSkeleton />;
 
 	const tokenSymbol = token.shortName || token.name;
-	const pair = `${tokenSymbol} / ${token.symbol || "BNB"}`;
+	const quoteLabel = displayOf(token.symbol) || token.symbol || "BNB";
+	const pair = `${tokenSymbol} / ${quoteLabel}`;
 	const hasClaimable = claimable != null && claimable > 0n;
 	const canClaim = taxInfo.kind === "tax" || taxInfo.kind === "strategy" || taxInfo.kind === "unknown";
 	/** Min balance / burned use this token's decimals (live on-chain, fallback 18) */
@@ -421,11 +424,11 @@ export default function TokenTaxPage() {
 					<dl className="tax-facts">
 						<dt>{t("tax.totalTaxCollected")}</dt>
 						<dd>
-							{formatBalanceWei(taxInfo.totalTaxCollected, quoteDecimals)} {token.symbol}
+							{formatBalanceWei(taxInfo.totalTaxCollected, quoteDecimals)} {quoteLabel}
 						</dd>
 						<dt>{t("tax.pendingDistribution")}</dt>
 						<dd>
-							{formatBalanceWei(taxInfo.feeAccumulated, quoteDecimals)} {token.symbol}
+							{formatBalanceWei(taxInfo.feeAccumulated, quoteDecimals)} {quoteLabel}
 						</dd>
 					</dl>
 				</div>
@@ -499,7 +502,7 @@ export default function TokenTaxPage() {
 							<span className="muted">{t("tax.claimable")}</span>
 							<strong className={hasClaimable ? "chg up" : undefined}>
 								{claimable != null ? formatBalanceWei(claimable, quoteDecimals) : "—"}{" "}
-								{token.symbol}
+								{quoteLabel}
 							</strong>
 						</div>
 						{taxInfo.kind === "tax" ? (
@@ -507,7 +510,7 @@ export default function TokenTaxPage() {
 								<span className="muted">{t("tax.totalClaimed")}</span>
 								<strong>
 									{claimedTotal != null ? formatBalanceWei(claimedTotal, quoteDecimals) : "—"}{" "}
-									{token.symbol}
+									{quoteLabel}
 								</strong>
 							</div>
 						) : null}

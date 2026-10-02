@@ -21,6 +21,7 @@ import {
 	formatPct,
 } from "@/lib/format";
 import { toUsdMarketCap, toUsdPrice, toUsdVolume } from "@/lib/quote-usd";
+import { useCommonConfig } from "@/hooks/use-common-config";
 import { useQuoteTickerPrices } from "@/hooks/use-quote-ticker-prices";
 import { useI18n } from "@/i18n/provider";
 
@@ -149,6 +150,7 @@ function MarketTableSkeleton() {
 export function TokenList() {
 	const { href, t } = useI18n();
 	const { priceOf } = useQuoteTickerPrices();
+	const { displayOf } = useCommonConfig();
 	const [tab, setTab] = useState<MarketTab>("new");
 	const [period, setPeriod] = useState<Period>("1d");
 	const [items, setItems] = useState<TokenListItem[]>([]);
@@ -304,7 +306,9 @@ export function TokenList() {
 													</span>
 													<span className="mkt-sub">
 														${t.shortName}
-														{t.symbol ? ` · ${t.symbol}` : ""}
+														{t.symbol
+															? ` · ${displayOf(t.symbol) || t.symbol}`
+															: ""}
 													</span>
 												</span>
 											</Link>

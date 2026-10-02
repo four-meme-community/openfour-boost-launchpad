@@ -1,10 +1,12 @@
 /**
  * Shared quote-asset USD map from `/meme-api/v1/public/ticker`
  * (same source as meme-launcher `@TICKER_EVENT`).
+ * Aliases API quote ids via public config nativeSymbol (RETH→ETH).
  */
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { ensureCommonConfig } from "@/hooks/use-common-config";
 import { memePost } from "@/lib/meme-api";
 import { resolveTickerSymbol } from "@/lib/quote-usd";
 
@@ -21,10 +23,10 @@ async function loadQuoteTickerMap(): Promise<Record<string, number>> {
 	if (inflight) return inflight;
 
 	inflight = (async () => {
-		const res = await memePost<QuoteTicker[]>(
-			"/meme-api/v1/public/ticker",
-			{},
-		);
+		const [res, common] = await Promise.all([
+			memePost<QuoteTicker[]>("/meme-api/v1/public/ticker", {}),
+			ensureCommonConfig().catch(() => []),
+		]);
 		const next: Record<string, number> = { USDT: 1 };
 		if (res.code === 0) {
 			for (const row of res.data || []) {
@@ -35,6 +37,16 @@ async function loadQuoteTickerMap(): Promise<Record<string, number>> {
 				if (key && Number.isFinite(price) && price > 0) {
 					next[key] = price;
 				}
+			}
+		}
+		// RETH → same USD as ETH when ticker only lists ETH
+		for (const item of common || []) {
+			const api = resolveTickerSymbol(item.symbol);
+			const native = resolveTickerSymbol(
+				item.nativeSymbol || item.symbol,
+			);
+			if (api && native && api !== native && next[native] != null) {
+				next[api] = next[native];
 			}
 		}
 		cachedMap = next;

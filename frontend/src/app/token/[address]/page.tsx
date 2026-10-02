@@ -54,6 +54,8 @@ type TokenPayload = TokenDetail & {
 	decimals?: number;
 	quoteAddress?: string;
 	quoteDecimals?: number;
+	/** User-facing quote ticker (config.nativeSymbol) */
+	quoteLabel?: string;
 	dexPair?: {
 		pairAddress?: string;
 		pancakeVersion?: string | number;
@@ -70,6 +72,8 @@ async function resolveQuoteMeta(symbol: string): Promise<{
 	raisedAmount?: string;
 	symbolAddress?: string;
 	decimals?: number;
+	/** User-facing ticker from config.nativeSymbol (RETH→ETH). */
+	nativeSymbol?: string;
 } | null> {
 	const target = symbol.trim().toUpperCase();
 	if (!target) return null;
@@ -88,6 +92,14 @@ async function resolveQuoteMeta(symbol: string): Promise<{
 			);
 		}),
 	);
+
+	const common = await loadCommonConfig().catch(() => [] as CommonConfigItem[]);
+	const commonRow = (common || []).find(
+		(item) => item.symbol?.toUpperCase() === target,
+	);
+	const nativeSymbol =
+		commonRow?.nativeSymbol?.trim() || commonRow?.symbol?.trim() || undefined;
+
 	for (const list of templateLists) {
 		const quote = (list || []).find(
 			(item) => item.symbol?.toUpperCase() === target,
@@ -100,21 +112,20 @@ async function resolveQuoteMeta(symbol: string): Promise<{
 						: undefined,
 				symbolAddress: quote.symbolAddress,
 				decimals: quote.decimals,
+				nativeSymbol:
+					nativeSymbol || quote.nativeSymbol?.trim() || quote.symbol,
 			};
 		}
 	}
 
-	const common = await loadCommonConfig().catch(() => [] as CommonConfigItem[]);
-	const row = (common || []).find(
-		(item) => item.symbol?.toUpperCase() === target,
-	);
-	if (!row) return null;
-	const amount = row.raisedAmount ?? row.totalBAmount;
+	if (!commonRow) return null;
+	const amount = commonRow.raisedAmount ?? commonRow.totalBAmount;
 	return {
 		raisedAmount:
 			amount != null && String(amount) !== "" ? String(amount) : undefined,
-		symbolAddress: row.symbolAddress,
-		decimals: row.decimals,
+		symbolAddress: commonRow.symbolAddress,
+		decimals: commonRow.decimals,
+		nativeSymbol: nativeSymbol || commonRow.symbol,
 	};
 }
 
@@ -193,6 +204,9 @@ export default function TokenPage() {
 							}
 							if (quote.decimals != null) {
 								nextToken.quoteDecimals = quote.decimals;
+							}
+							if (quote.nativeSymbol) {
+								nextToken.quoteLabel = quote.nativeSymbol;
 							}
 						}
 					} catch {
@@ -288,6 +302,7 @@ export default function TokenPage() {
 		name: token.name,
 		shortName: token.shortName,
 		symbol: token.symbol,
+		quoteLabel: token.quoteLabel || token.symbol,
 		address: token.address || address,
 		image: token.image || token.img,
 		descr: token.descr,
@@ -335,6 +350,7 @@ export default function TokenPage() {
 							creator={token.userAddress}
 							tokenAddress={token.address || address}
 							quoteSymbol={token.symbol || "BNB"}
+							quoteLabel={token.quoteLabel || token.symbol || "BNB"}
 							holderCount={ticker?.holderCount}
 						/>
 					) : null}

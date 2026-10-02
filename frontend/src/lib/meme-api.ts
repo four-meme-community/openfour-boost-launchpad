@@ -122,12 +122,31 @@ export async function fetchQuoteTickerPrice(
 
 	const target = symbol.toUpperCase();
 	if (target === "USDT") return 1;
-	const row = (res.data || []).find(
-		(item) =>
-			String(item.symbol).toUpperCase().replace(/USDT$/, "") === target,
-	);
-	const price = Number(row?.price);
-	return Number.isFinite(price) && price > 0 ? price : 1;
+	const findPrice = (key: string) => {
+		const row = (res.data || []).find(
+			(item) =>
+				String(item.symbol).toUpperCase().replace(/USDT$/, "") === key,
+		);
+		const price = Number(row?.price);
+		return Number.isFinite(price) && price > 0 ? price : 0;
+	};
+	const direct = findPrice(target);
+	if (direct > 0) return direct;
+
+	// RETH → ETH via public config nativeSymbol
+	try {
+		const { ensureCommonConfig } = await import("@/hooks/use-common-config");
+		const { quoteDisplaySymbol } = await import("@/lib/open-four");
+		const common = await ensureCommonConfig();
+		const display = quoteDisplaySymbol(symbol, common).toUpperCase();
+		if (display && display !== target) {
+			const viaNative = findPrice(display);
+			if (viaNative > 0) return viaNative;
+		}
+	} catch {
+		// ignore
+	}
+	return 1;
 }
 
 /**
