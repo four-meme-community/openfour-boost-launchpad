@@ -26,7 +26,7 @@ import {
 	type ReactNode,
 } from "react";
 import { useAccount, useSignMessage, useSwitchChain } from "wagmi";
-import { getActiveChain, toMemeApiNetworkName } from "@/lib/chain";
+import { getActiveChain, toMemeApiNetworkCode } from "@/lib/chain";
 import { bindInviteCode } from "@/lib/invite-api";
 import {
 	clearAccessToken,
@@ -113,7 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				await switchChainAsync({ chainId: targetChain.id });
 			}
 
-			const networkCode = toMemeApiNetworkName();
+			const networkCode = toMemeApiNetworkCode();
 			const nonceRes = await memePost<string>(
 				"/meme-api/v1/private/user/nonce/generate",
 				{

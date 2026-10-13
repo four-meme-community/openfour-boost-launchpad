@@ -19,7 +19,7 @@ import {
 	type RebateTokenBalance,
 } from "./invite-api";
 import { memeGet } from "./meme-api";
-import { toMemeApiNetworkName } from "./chain";
+import { toMemeApiNetworkCode } from "./chain";
 import { wagmiConfig } from "./wagmi";
 
 /**
@@ -32,7 +32,7 @@ import { wagmiConfig } from "./wagmi";
 export async function loadRebateKeeperAddress(): Promise<Address> {
 	const res = await memeGet<Array<{ name: string; address: string }>>(
 		"/meme-api/api/v1/public/address",
-		{ networkCode: toMemeApiNetworkName() },
+		{ networkCode: toMemeApiNetworkCode() },
 	);
 	if (res.code !== 0) throw new Error(res.msg || "Failed to load addresses");
 	const entry = res.data?.find((r) => r.name === "REBATE_KEEPER");

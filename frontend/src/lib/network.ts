@@ -36,14 +36,8 @@ export const MEME_NETWORK_ID = {
 	ROBINHOOD: "robinhood",
 } as const;
 
-export const WALLET_NETWORK_CODE = {
-	BSC: "BSC",
-	ROBINHOOD: "ROBINHOOD",
-} as const;
-
 export type MemeNetworkCode = string;
 export type MemeNetworkId = PublicChain["id"];
-export type WalletNetworkCode = PublicChain["walletNetworkCode"];
 
 export type MemeNetworkOption = {
 	key: string;
@@ -107,12 +101,6 @@ export function getMemeNetworkQueryValue(
 	return getPublicChainByCode(normalizeMemeNetworkCode(code)).query;
 }
 
-export function getWalletNetworkCode(
-	code?: string | number | null,
-): WalletNetworkCode {
-	return getPublicChainByCode(normalizeMemeNetworkCode(code)).walletNetworkCode;
-}
-
 export function getNativeQuoteSymbol(
 	code?: string | number | null,
 ): PublicChain["nativeSymbol"] {
@@ -161,10 +149,6 @@ export function getClientMemeNetworkCode(): MemeNetworkCode {
 		return parseMemeNetworkCodeFromCookieHeader(document.cookie);
 	}
 	return normalizeMemeNetworkCode(Cookies.get(MEME_NETWORK_COOKIE));
-}
-
-export function getClientWalletNetworkCode(): WalletNetworkCode {
-	return getWalletNetworkCode(getClientMemeNetworkCode());
 }
 
 export function setClientMemeNetworkCode(code: string | number) {

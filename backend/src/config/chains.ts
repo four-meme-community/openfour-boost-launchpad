@@ -16,8 +16,6 @@ export type PublicChain = {
 	/** Wallet / wagmi chain id */
 	chainId: number;
 	label: string;
-	/** Login / address API networkCode */
-	walletNetworkCode: "BSC" | "ROBINHOOD";
 	nativeSymbol: "BNB" | "ETH";
 };
 
@@ -29,7 +27,6 @@ const CHAIN_CATALOG: Record<string, PublicChain> = {
 		code: "0",
 		chainId: 56,
 		label: "BSC",
-		walletNetworkCode: "BSC",
 		nativeSymbol: "BNB",
 	},
 	"bsc-testnet": {
@@ -39,7 +36,6 @@ const CHAIN_CATALOG: Record<string, PublicChain> = {
 		code: "0",
 		chainId: 97,
 		label: "BSC Testnet",
-		walletNetworkCode: "BSC",
 		nativeSymbol: "BNB",
 	},
 	robinhood: {
@@ -49,7 +45,6 @@ const CHAIN_CATALOG: Record<string, PublicChain> = {
 		code: "8",
 		chainId: 4663,
 		label: "Robinhood",
-		walletNetworkCode: "ROBINHOOD",
 		nativeSymbol: "ETH",
 	},
 	"robinhood-testnet": {
@@ -59,7 +54,6 @@ const CHAIN_CATALOG: Record<string, PublicChain> = {
 		code: "8",
 		chainId: 46630,
 		label: "Robinhood Testnet",
-		walletNetworkCode: "ROBINHOOD",
 		nativeSymbol: "ETH",
 	},
 };

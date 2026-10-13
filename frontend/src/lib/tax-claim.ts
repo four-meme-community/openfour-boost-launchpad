@@ -21,7 +21,7 @@ import {
 	writeContract,
 } from "wagmi/actions";
 import type { Address } from "viem";
-import { getActiveChain, toMemeApiNetworkCode, toMemeApiNetworkName } from "./chain";
+import { getActiveChain, toMemeApiNetworkCode } from "./chain";
 import { memeGet } from "./meme-api";
 import { wagmiConfig } from "./wagmi";
 
@@ -149,7 +149,7 @@ export async function loadFeeClaimHelperAddress(): Promise<Address> {
 
 	const fromWebApi = await findAddressIn(
 		"/meme-api/v1/public/address",
-		toMemeApiNetworkName(),
+		toMemeApiNetworkCode(),
 		"FeeClaimHelper",
 	);
 	if (fromWebApi) return fromWebApi;

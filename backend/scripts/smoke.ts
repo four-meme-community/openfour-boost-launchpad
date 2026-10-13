@@ -171,7 +171,6 @@ async function main() {
 		chains?: Array<{
 			key: string;
 			code: string;
-			walletNetworkCode: string;
 			presetIds?: string[];
 		}>;
 		defaultChain?: string;
@@ -183,13 +182,11 @@ async function main() {
 	type ChainProbe = {
 		key: string;
 		code: string;
-		walletNetworkCode: string;
 		presetIds: string[];
 	};
 	const probes: ChainProbe[] = chains.map((chain) => ({
 		key: chain.key,
 		code: chain.code,
-		walletNetworkCode: chain.walletNetworkCode,
 		presetIds: Array.isArray(chain.presetIds) ? chain.presetIds : [],
 	}));
 	for (const chain of probes) {
@@ -233,7 +230,7 @@ async function main() {
 
 	for (const chain of probes) {
 		const addr = await proxyGet(
-			`/meme-api/api/v1/public/address?networkCode=${chain.walletNetworkCode}`,
+			`/meme-api/api/v1/public/address?networkCode=${chain.code}`,
 			chain.code,
 		);
 		const addrCode = addr.body.code;

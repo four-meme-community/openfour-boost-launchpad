@@ -3,15 +3,13 @@
  *
  * Convention (same as meme-launcher):
  * - On-chain / wagmi: native chain id from `/v1/config`
- * - meme-api header `meme-network-code`: BSC family → 0, Robinhood family → 8
- * - Login / address `networkCode` string: "BSC" | "ROBINHOOD"
+ * - meme-api header / body `networkCode`: BSC family → 0, Robinhood family → 8
  */
 import { bsc, bscTestnet } from "wagmi/chains";
 import { getPublicChainByChainId, getPublicChainByCode } from "./chain-config";
 import {
 	getClientMemeNetworkCode,
 	getNativeQuoteSymbol as nativeQuoteForCode,
-	getWalletNetworkCode,
 	type MemeNetworkCode,
 } from "./network";
 import { robinhood, robinhoodTestnet } from "./rpc";
@@ -68,15 +66,6 @@ export function toMemeApiNetworkCode(
 		return Number(getPublicChainByCode(chainOrCode).code);
 	}
 	return Number(getPublicChainByChainId(chainOrCode).code);
-}
-
-export function toMemeApiNetworkName(
-	chainOrCode: number | string = getClientMemeNetworkCode(),
-): "BSC" | "ROBINHOOD" {
-	if (typeof chainOrCode === "string") {
-		return getWalletNetworkCode(chainOrCode);
-	}
-	return getPublicChainByChainId(chainOrCode).walletNetworkCode;
 }
 
 export function currentMemeNetworkCode(): MemeNetworkCode {

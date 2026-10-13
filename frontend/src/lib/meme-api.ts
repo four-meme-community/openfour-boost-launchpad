@@ -4,7 +4,7 @@
  * Security: never attach meme-api-key; session cookie user_token → meme-web-access header.
  */
 import Cookies from "js-cookie";
-import { toMemeApiNetworkName } from "./chain";
+import { toMemeApiNetworkCode } from "./chain";
 import { publicEnv } from "./env";
 import {
 	getClientMemeNetworkCode,
@@ -441,6 +441,6 @@ export async function fetchTokenFills(params: {
 		tokenId: params.tokenId,
 		pageIndex: params.pageIndex ?? 1,
 		pageSize: params.pageSize ?? 40,
-		networkCode: toMemeApiNetworkName(),
+		networkCode: toMemeApiNetworkCode(),
 	});
 }

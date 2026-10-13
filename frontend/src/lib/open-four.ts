@@ -20,7 +20,7 @@ import openFourCoreAbi from "@/abi/open-four-core.json";
 import openFourToolsAbi from "@/abi/open-four-tools.json";
 import { publicEnv } from "./env";
 import { memeGet, memePost } from "./meme-api";
-import { getActiveChain, toMemeApiNetworkName } from "./chain";
+import { getActiveChain, toMemeApiNetworkCode } from "./chain";
 import { normalizeOptionalCreateUrl } from "./create-url";
 import {
 	isTaxTokenSchema,
@@ -49,7 +49,7 @@ export type Contracts = {
 export async function loadContracts(): Promise<Contracts> {
 	const res = await memeGet<Array<{ name: string; address: string }>>(
 		"/meme-api/api/v1/public/address",
-		{ networkCode: toMemeApiNetworkName() },
+		{ networkCode: toMemeApiNetworkCode() },
 	);
 	if (res.code !== 0) throw new Error(res.msg || "Failed to load addresses");
 	const map = Object.fromEntries(res.data.map((r) => [r.name, r.address]));

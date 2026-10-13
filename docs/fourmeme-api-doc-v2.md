@@ -15,6 +15,29 @@ Endpoints that require authentication are marked `AUTH REQUIRED`. Pass the follo
 
 ---
 
+## Network
+
+For OpenFour / Boost, use only these **numeric** network types in requests. Do not confuse them with EVM chain IDs (`56`, `4663`, …).
+
+| Network | Request value |
+|---|---|
+| BSC | `0` |
+| Robinhood | `8` |
+
+### Header `meme-network-code`
+
+Pass `0` or `8`. Used for ranking / search and most private routes that take network from request context. Default when omitted: `0`.
+
+### Query / body `networkCode`
+
+Wherever an endpoint lists `networkCode`, pass integer **`0` or `8`** (config, address, fill, token get, nonce, login / bind, etc.). Do not send chain IDs.
+
+### Response `networkCode`
+
+Some responses still return a string name or a separate `network` int field. Treat that as response-only; **requests should always use `0` / `8`**.
+
+---
+
 ## Public Endpoints
 
 ### Get Token Info
@@ -29,7 +52,7 @@ Query basic token information by contract address or token ID.
 |---|---|---|---|
 | `address` | string | No | Token contract address. |
 | `tokenId` | integer | No | Token ID. If both `address` and `tokenId` are provided, `tokenId` takes priority. |
-| `networkCode` | integer | No | Network code. Defaults to `56` (BSC). |
+| `networkCode` | integer | No | Network type. `0` = BSC, `8` = ROBINHOOD. Defaults to `0`. |
 
 > At least one of `address` or `tokenId` must be provided.
 
@@ -86,7 +109,7 @@ Query basic token information by contract address or token ID.
 | `status` | integer | Current token status. |
 | `reserveAmount` | number | Reserved token amount. |
 | `raisedAmount` | number | Amount of funds raised. |
-| `networkCode` | string | Network code (e.g. "BSC"). |
+| `networkCode` | string | Network name (`BSC` / `ROBINHOOD`). |
 | `createDate` | string | Creation date and time (ISO 8601). |
 
 
@@ -104,7 +127,7 @@ Query detailed token information, including social links and description.
 |---|---|---|---|
 | `address` | string | No | Token contract address. |
 | `tokenId` | integer | No | Token ID. If both `address` and `tokenId` are provided, `tokenId` takes priority. |
-| `networkCode` | integer | No | Network code. Defaults to `56` (BSC). |
+| `networkCode` | integer | No | Network type. `0` = BSC, `8` = ROBINHOOD. Defaults to `0`. |
 
 > At least one of `address` or `tokenId` must be provided.
 
@@ -152,7 +175,7 @@ Query real-time price and market data for a token.
 |---|---|---|---|
 | `tokenId` | integer | Yes | Token ID. |
 | `address` | string | No | Token contract address. |
-| `networkCode` | integer | No | Network code. |
+| `networkCode` | integer | No | Network type. `0` = BSC, `8` = ROBINHOOD. |
 
 #### Response Example
 
@@ -171,7 +194,7 @@ Query real-time price and market data for a token.
     "dayTrading": 12000,
     "status": 1,
     "liquidity": 80000,
-    "networkCode": 56,
+    "networkCode": 0,
     "tradingUsd": 50000,
     "holderCount": 1500
   }
@@ -192,7 +215,7 @@ Query real-time price and market data for a token.
 | `dayTrading` | number | 24-hour trading volume. |
 | `status` | integer | Current token status. |
 | `liquidity` | number | Total liquidity in the pool. |
-| `networkCode` | integer | Network code. |
+| `networkCode` | integer | Network type (`0` = BSC, `8` = ROBINHOOD). |
 | `tradingUsd` | number | Trading volume in USD. |
 | `holderCount` | integer | Number of unique holders. |
 
@@ -210,7 +233,7 @@ Query tax and fee structure for a specific token.
 |---|---|---|---|
 | `tokenId` | integer | Yes | Token ID. |
 | `address` | string | No | Token contract address. |
-| `networkCode` | integer | No | Network code. |
+| `networkCode` | integer | No | Network type. `0` = BSC, `8` = ROBINHOOD. |
 
 #### Response Example
 
@@ -262,7 +285,7 @@ Query the liquidity pair address for a token.
 |---|---|---|---|
 | `tokenId` | integer | Yes | Token ID. |
 | `address` | string | No | Token contract address. |
-| `networkCode` | integer | No | Network code. |
+| `networkCode` | integer | No | Network type. `0` = BSC, `8` = ROBINHOOD. |
 
 #### Response Example
 
@@ -407,7 +430,7 @@ Query platform-level configuration and settings.
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `platform` | string | Yes | Platform type. Enum: `MEME`, `PANCAKE`. |
-| `networkCode` | string | Yes | Network code. Enum: `BSC`, `ETH`, `SOLANA`, `ARBI_ONE`, `GOERLI`, `TON`, `BASE`, `OP_BNB`. |
+| `networkCode` | integer | Yes | Network type. `0` = BSC, `8` = ROBINHOOD. See [Network](#network). |
 
 #### Response Example
 
@@ -460,7 +483,7 @@ Query platform-level configuration and settings.
 | `buyTokenLink` | string | Link to buy the token. |
 | `reservedNumber` | integer | Reserved decimal places for display. |
 | `saleRate` | number | Sale percentage of total supply. |
-| `networkCode` | string | Network code. |
+| `networkCode` | string | Network name (`BSC` / `ROBINHOOD`). |
 | `platform` | string | Platform code. |
 
 ---
@@ -475,7 +498,7 @@ Query the list of core contract addresses for a given network.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `networkCode` | string | Yes | Network code. Enum: `BSC`, `ETH`, `SOLANA`, `ARBI_ONE`, `GOERLI`, `TON`, `BASE`, `OP_BNB`. |
+| `networkCode` | integer | Yes | Network type. `0` = BSC, `8` = ROBINHOOD. See [Network](#network). |
 
 #### Response Example
 
@@ -488,13 +511,13 @@ Query the list of core contract addresses for a given network.
       "name": "TokenManager",
       "address": "0xmanageraddress...",
       "networkCode": "BSC",
-      "network": 56
+      "network": 0
     },
     {
       "name": "Factory",
       "address": "0xfactoryaddress...",
       "networkCode": "BSC",
-      "network": 56
+      "network": 0
     }
   ]
 }
@@ -506,8 +529,8 @@ Query the list of core contract addresses for a given network.
 |---|---|---|
 | `name` | string | Contract name. |
 | `address` | string | Contract address. |
-| `networkCode` | string | Network code (e.g. "BSC"). |
-| `network` | integer | Network ID (e.g. 56 for BSC). |
+| `networkCode` | string | Network name (e.g. `BSC`, `ROBINHOOD`). |
+| `network` | integer | Network type (`0` = BSC, `8` = ROBINHOOD). |
 
 ---
 
@@ -522,7 +545,7 @@ Query recent trade fills for a token.
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `tokenId` | integer | Yes | Token ID. |
-| `networkCode` | string | No | Network code. Defaults to `BSC`. |
+| `networkCode` | integer | No | Network type. `0` = BSC, `8` = ROBINHOOD. Defaults to `0`. |
 | `address` | string | No | Filter trades by a specific user address. |
 | `symbol` | string | No | Quote currency symbol. |
 | `symbolAddress` | string | No | Quote currency address. |
@@ -751,7 +774,7 @@ Query candlestick (K-line) data for a token price chart.
 | `tokenId` | integer | Yes | Token ID. |
 | `dex` | integer | Yes | Data source. `0` for internal, `1` for DEX. |
 | `category` | string | No | Price quote currency. Enum: `USDT`, `ORIGN`. |
-| `networkCode` | string | No | Network code. |
+| `networkCode` | integer | No | Network type. `0` = BSC, `8` = ROBINHOOD. Defaults to `0`. |
 
 #### Response Example
 
@@ -798,6 +821,8 @@ Query candlestick (K-line) data for a token price chart.
 Query the token ranking board with various filters.
 
 `POST https://four.meme/meme-api/api/v1/public/token/ranking`
+
+> Network comes from header `meme-network-code` (`0` = BSC, `8` = ROBINHOOD). There is no `networkCode` field in the body. See [Network](#network).
 
 #### Request Body
 
@@ -859,7 +884,7 @@ Query the token ranking board with various filters.
       "day1VolUSDT": 50000,
       "taxFee": 5,
       "createDate": "2023-03-15T12:00:00Z",
-      "networkCode": 56,
+      "networkCode": 0,
       "version": 9,
       "status": "TRADE",
       "showStatus": "SHOW",
@@ -879,6 +904,8 @@ Query the token ranking board with various filters.
 Search tokens by keyword and other filters.
 
 `POST https://four.meme/meme-api/api/v1/public/token/search`
+
+> Network comes from header `meme-network-code` (`0` = BSC, `8` = ROBINHOOD). There is no `networkCode` field in the body. See [Network](#network).
 
 #### Request Body
 
@@ -945,7 +972,7 @@ Search tokens by keyword and other filters.
       "day1VolUSDT": 150000,
       "taxFee": 3,
       "createDate": "2023-03-10T08:00:00Z",
-      "networkCode": 56,
+      "networkCode": 0,
       "version": 9,
       "status": "TRADE",
       "showStatus": "SHOW",
@@ -987,7 +1014,7 @@ Search tokens by keyword and other filters.
 | `day1VolUSDT` | number | 24-hour trading volume in USDT. |
 | `taxFee` | number | Tax fee rate. |
 | `createDate` | string | Creation time (ISO 8601). |
-| `networkCode` | integer | Network code. |
+| `networkCode` | integer | Network type (`0` = BSC, `8` = ROBINHOOD). |
 | `version` | integer | Contract version. |
 | `status` | string | Token status. |
 | `showStatus` | string | Display status. |
@@ -1107,7 +1134,7 @@ Generate a nonce for the user to sign. This is the first step of the wallet bind
 {
   "accountAddress": "0xuseraddress...",
   "verifyType": "LOGIN",
-  "networkCode": "BSC"
+  "networkCode": 0
 }
 ```
 
@@ -1117,7 +1144,7 @@ Generate a nonce for the user to sign. This is the first step of the wallet bind
 |---|---|---|---|
 | `accountAddress` | string | Yes | User wallet address (e.g. `0x...`). |
 | `verifyType` | string | Yes | Verification type. Currently only `LOGIN` is supported. |
-| `networkCode` | string | No | Network code. Defaults to `BSC`. |
+| `networkCode` | integer | No | Network type. `0` = BSC, `8` = ROBINHOOD. Defaults to `0`. |
 
 #### Response Example
 
@@ -1149,7 +1176,7 @@ Bind a wallet address to a user account by verifying a signed nonce.
   "address": "0xuseraddress...",
   "signature": "0x...",
   "verifyType": "LOGIN",
-  "networkCode": "BSC"
+  "networkCode": 0
 }
 ```
 
@@ -1160,7 +1187,7 @@ Bind a wallet address to a user account by verifying a signed nonce.
 | `address` | string | Yes | User wallet address. |
 | `signature` | string | Yes | EIP-191 signature as a 65-byte hex string (`r + s + v`). |
 | `verifyType` | string | No | Verification type. Must match the type used when generating the nonce. |
-| `networkCode` | string | No | Network code. Must match the network code used when generating the nonce. |
+| `networkCode` | integer | No | Network type. `0` = BSC, `8` = ROBINHOOD. Must match the value used when generating the nonce. |
 
 #### Response Example
 

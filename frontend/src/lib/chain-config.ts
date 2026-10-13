@@ -11,7 +11,6 @@ export type PublicChain = {
 	code: string;
 	chainId: number;
 	label: string;
-	walletNetworkCode: "BSC" | "ROBINHOOD";
 	nativeSymbol: "BNB" | "ETH";
 	/** OpenFour create preset / template ids from BFF `/v1/config` */
 	presetIds: string[];
@@ -40,7 +39,6 @@ export function fallbackPublicChains(): {
 					code: "0",
 					chainId: 56,
 					label: "BSC",
-					walletNetworkCode: "BSC",
 					nativeSymbol: "BNB",
 				}),
 				withPresetIds({
@@ -50,7 +48,6 @@ export function fallbackPublicChains(): {
 					code: "8",
 					chainId: 4663,
 					label: "Robinhood",
-					walletNetworkCode: "ROBINHOOD",
 					nativeSymbol: "ETH",
 				}),
 			],
@@ -66,7 +63,6 @@ export function fallbackPublicChains(): {
 				code: "0",
 				chainId: 97,
 				label: "BSC Testnet",
-				walletNetworkCode: "BSC",
 				nativeSymbol: "BNB",
 			}),
 			withPresetIds({
@@ -76,7 +72,6 @@ export function fallbackPublicChains(): {
 				code: "8",
 				chainId: 46630,
 				label: "Robinhood Testnet",
-				walletNetworkCode: "ROBINHOOD",
 				nativeSymbol: "ETH",
 			}),
 		],
